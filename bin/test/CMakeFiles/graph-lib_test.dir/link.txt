@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/graph-lib_test.dir/main.cc.o graph-component-test/CMakeFiles/component-test.dir/vertex-test.cc.o graph-component-test/CMakeFiles/component-test.dir/edge-test.cc.o -o graph-lib_test  ../lib/libgtest.a -lpthread 

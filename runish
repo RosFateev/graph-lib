@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ $1 = "source" ]; then
+	./bin/src/graph-lib
+elif [ $1 = "test" ]; then
+	./bin/test/graph-lib_test
+else
+	echo "Provide a parameter: source or test"
+fi

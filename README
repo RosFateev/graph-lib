@@ -1,0 +1,6 @@
+This is a free-to-use graph c++ library.
+
+The requirements are:
+	- c++11
+
+Any help materials (documentation, scheme, etc.) reside in misc folder.

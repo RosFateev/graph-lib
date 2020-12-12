@@ -1,0 +1,123 @@
+\section*{Documentation}
+
+
+
+\subsection*{Main classes}
+
+\subsubsection*{Graph}
+%define some usefull stuff
+\label{graph_lbl}
+
+\(Graph<IdType, \ref{edge_lbl}EdgeType> \) \\
+IdType - used to identify individual vertices. It can be any type, but small (like int) is preferable. \\
+EdgeType -  used to specify edges \\
+
+\paragraph{Interface}
+Public: \\
+\begin{table}
+\small
+\begin{tabularx}{14cm}{
+		>{\raggedright\arraybackslash}X
+		>{\raggedright\arraybackslash}X }
+	Function & Description \\
+	(constructor) & constructs graph \\
+	(destructor) & destructs graph \\
+	operator= & assigns value to internal container \\
+	\hline
+	AddVertex & insert a vertex into a graph \\
+	GetVertex & returns a vertex contained in a graph \\
+	RemoveVertex & removes a vertex contained in a graph \\
+\end{tabularx}
+\end{table}
+
+\begin{table}
+	\small
+	\begin{tabularx}{14cm}{
+			>{\raggedright\arraybackslash}X
+			>{\raggedright\arraybackslash}X }
+		Function & Description \\
+		(constructor) & constructs graph \\
+		(destructor) & destructs graph \\
+		operator= & assigns value to internal container \\
+		\hline
+		AddVertex & insert a vertex into a graph \\
+		GetVertex & returns a vertex contained in a graph \\
+		RemoveVertex & removes a vertex contained in a graph \\
+		\hline
+		AddEdge & insert an edge between vertices that graph contains \\
+		GetEdge & returns an edge between vertices that graph contains \\
+		RemoveEdge & removes an edge between vertices that graph contains \\
+		Short & Description \\
+		Loooooooooooooooong & aklsdjfglahjsdfgkvjhasklalksdjhfkjashdf \\
+	\end{tabularx}
+\end{table}
+
+\begin{lstlisting}
+Graph();
+Graph(const Graph&)
+Graph(std::initializer_list<init_list_type>&&);
+
+template<	class InputIterator>			
+Graph(	InputIterator, InputIterator);
+
+const Graph&	operator=(const Graph&);
+\end{lstlisting}
+
+\begin{lstlisting}
+
+//Component manipulators
+//Vertex
+template<   class ArgT>
+void           AddVertex(   ArgT&& inArg);
+
+vertex_type&   GetVertex(	Data&& inId);
+
+void           RemoveVertex(Data&& inId);
+
+//Edge
+template<   class ...Args>
+void              AddEdge(    Args&&... args);
+
+
+template<   class ArgT>
+EdgeType<Data>&   GetEdge(    ArgT&& inArg1,
+ArgT&& inArg2);
+
+template<   class ArgT>
+void              RemoveEdge( ArgT&&,
+ArgT&&);
+
+template<   class ArgT>
+std::vector<EdgeType<Data>>*   GetNeighbours(   ArgT&& inArg);
+\end{lstlisting}
+
+\begin{lstlisting}
+#include "graph-lib/graph.hpp"
+#include <string>
+
+
+int main(int argv, char** argc)
+{
+   Graph<int, Undirected> testGraph = { Vertex<int>(1),
+                                            Vertex<int>(2),
+                                            Vertex<int>(3) };
+   return 0;
+}
+
+\end{lstlisting}
+
+
+\subsubsection*{Vertex}
+%define some usefull stuff
+\label{vertex_lbl}
+
+\subsubsection*{Edge}
+%define some usefull stuff
+\label{edge_lbl}
+
+
+\subsection*{Algorithm classes}
+
+\subsubsection*{DFS}
+
+\subsubsection*{BFS}
