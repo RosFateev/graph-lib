@@ -96,11 +96,17 @@ graph__lib_test_OBJECTS = \
 # External object files for target graph-lib_test
 graph__lib_test_EXTERNAL_OBJECTS = \
 "/home/rostislav/Documents/programming/c++/projects/graph-lib/bin/test/graph-component-test/CMakeFiles/component-test.dir/vertex-test.cc.o" \
-"/home/rostislav/Documents/programming/c++/projects/graph-lib/bin/test/graph-component-test/CMakeFiles/component-test.dir/edge-test.cc.o"
+"/home/rostislav/Documents/programming/c++/projects/graph-lib/bin/test/graph-component-test/CMakeFiles/component-test.dir/edge-test.cc.o" \
+"/home/rostislav/Documents/programming/c++/projects/graph-lib/bin/test/graph-implementation-test/CMakeFiles/implementation-test.dir/adjacency-list-test.cc.o" \
+"/home/rostislav/Documents/programming/c++/projects/graph-lib/bin/test/graph-implementation-test/CMakeFiles/implementation-test.dir/manager-test.cc.o" \
+"/home/rostislav/Documents/programming/c++/projects/graph-lib/bin/test/graph-component-support-test/CMakeFiles/component-support-test.dir/edge-support-test.cc.o"
 
 test/graph-lib_test: test/CMakeFiles/graph-lib_test.dir/main.cc.o
 test/graph-lib_test: test/graph-component-test/CMakeFiles/component-test.dir/vertex-test.cc.o
 test/graph-lib_test: test/graph-component-test/CMakeFiles/component-test.dir/edge-test.cc.o
+test/graph-lib_test: test/graph-implementation-test/CMakeFiles/implementation-test.dir/adjacency-list-test.cc.o
+test/graph-lib_test: test/graph-implementation-test/CMakeFiles/implementation-test.dir/manager-test.cc.o
+test/graph-lib_test: test/graph-component-support-test/CMakeFiles/component-support-test.dir/edge-support-test.cc.o
 test/graph-lib_test: test/CMakeFiles/graph-lib_test.dir/build.make
 test/graph-lib_test: lib/libgtest.a
 test/graph-lib_test: test/CMakeFiles/graph-lib_test.dir/link.txt

@@ -3,6 +3,7 @@
 
 
 
+//includes:
 //related
 //c
 //std 
@@ -11,6 +12,11 @@
 
 
 
+
+
+//
+// Vertex traits are supposed to help in some algorithms (i.e some specific reserved values etc). - currently unused.
+//
 namespace component
 {
 	namespace vertextraits
@@ -42,7 +48,9 @@ namespace component
 
 
 
-	//support for data structures: unordered map and set
+	//
+	// Custom comparator and hash are requierd for data structures with custom key: unordered map and set
+	//
 	namespace support
 	{
 		//needed for unordered_map to work with Vertex<Data> Key

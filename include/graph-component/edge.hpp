@@ -28,11 +28,13 @@ namespace component
 	{
 	public:
 		//constructors
-		explicit    Edge(   const Vertex<Data>&, 
-			                const Vertex<Data>&, 
-			                int  inWght = 0);
+		explicit    Edge(   const 	Vertex<Data>&, 
+			                const 	Vertex<Data>&, 
+			                int  	inWght 			= 0);
 		
                     Edge(	const Edge&);
+
+                    Edge(	Edge&&);
 
 
 		//operators
@@ -75,20 +77,36 @@ namespace component
 	//constructors
 	template<   class Data,
 	            bool  Type>
-	Edge<Data, Type>::Edge(	  const Vertex<Data>& inVertex1, 
-						      const Vertex<Data>& inVertex2,
-						      int                 inWght) :   first_(inVertex1), 
-	                                                          second_(inVertex2),
-	                                                          weight_(inWght)
+	Edge<Data, Type>::Edge(	  const Vertex<Data>& 		inVertex1, 
+						      const Vertex<Data>& 		inVertex2,
+						      int                 		inWght		) :   	first_(inVertex1), 
+	                                                          				second_(inVertex2),
+	                                                          				weight_(inWght)
 	{	}
 	
+
+
+	//
 	template<   class Data,
 	            bool  Type>
-	Edge<Data, Type>::Edge(   const Edge<Data, Type>& inEdge) :  first_(inEdge.first_),
-	                                                             second_(inEdge.second_),
-	                                                             weight_(inEdge.weight_)
+	Edge<Data, Type>::Edge(   const Edge<Data, Type>& 	inEdge) :  	first_(inEdge.first_),
+	                                                          	   	second_(inEdge.second_),
+	                                                         		weight_(inEdge.weight_)
 	{	}
-		
+
+
+
+	//
+	template<   class Data,
+	            bool  Type>
+	Edge<Data, Type>::Edge(   Edge<Data, Type>&& 		inEdge) :  	first_(std::move(inEdge.first_)),
+	                                                    	        second_(std::move(inEdge.second_)),
+	                                                        	    weight_(std::move(inEdge.weight_))
+	{	}
+
+
+
+	//
 	template<   class Data,
 	            bool  Type>
 	const Edge<Data, Type>& Edge<Data, Type>::operator=(   const Edge<Data, Type>& inEdge)

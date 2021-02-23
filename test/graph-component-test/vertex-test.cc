@@ -1,53 +1,106 @@
-#include "gtest/gtest.h"
-#include "graph-component/vertex.hpp"
-#include <vector>
+#include "gtest/gtest.h"					//gtest
+#include "graph-component/vertex.hpp"		//component to test
+//
+#include <vector>							//
+#include <string>							//
+#include <algorithm>						//std::copy
+#include <iterator>							//std::back_inserter
 
 
 
-TEST(VertexTestSuite, VertexIntConstructorTest) 
+
+
+// define test fixture
+template<	class Data>
+class VertexTest : public testing::Test
 {
-	// Arrange
-	const int size = 4;
+protected:
+	//required functions
+	void 	SetUp() 	override
+	{
+		// # of elements
+		count_ = 20;		
+	}
 
-	std::vector<component::Vertex<int>> dataHolder = { component::Vertex<int>(0),
-	                                                   component::Vertex<int>(1),
-	                                                   component::Vertex<int>(2),
-	                                                   component::Vertex<int>(3) };
+	void 	TearDown() 	override
+	{	}
 
-	// Act
-	const int expected_value [] = { 0, 1, 2, 3 };
+public:
+	std::vector<component::Vertex<Data>> 	container1_;
+	std::vector<component::Vertex<Data>> 	container2_;
+	int 									count_;
+};
+//
 
-	// Assert
-	for(int i = 0; i < size; i++)
-		EXPECT_EQ(dataHolder[i].Id(), expected_value[i]);
+
+
+
+
+//	Using parametrized tests for component::Vertex
+#if GTEST_HAS_TYPED_TEST
+
+using testing::Types;
+
+
+
+// Declare which types are going to be used
+typedef Types<int, char> IndeciesTypes;
+
+
+
+// declare what test fixture uses which types
+TYPED_TEST_SUITE(VertexTest, IndeciesTypes);
+
+
+
+
+
+//
+// Tests
+//
+
+// Default constructor test
+TYPED_TEST(VertexTest, DataConstructor) 
+{
+	//initialize
+	for(int i = 0; i < this->count_; ++i)
+	{
+		this->container1_.emplace_back(i);
+	}
+	//assert
+	for(int i = 0; i < this->count_; ++i)
+	{
+		ASSERT_EQ(this->container1_[i].Id(), i);
+	}
 }
 
-TEST(VertexTestSuite, VertexCopyConstructorTest) 
-{
-	// Arrange
-	component::Vertex<int> testVertex1(1);
-	component::Vertex<int> testVertex2(testVertex1);
 
-	// Act (in this test arrange and act is merged)
-	
-	// Assert
-	EXPECT_EQ(testVertex1.Id(), testVertex2.Id());
+
+// Copy constructor test
+TYPED_TEST(VertexTest, CopyConstructor) 
+{
+	//initialize first
+	for(int i = 0; i < this->count_; ++i)
+	{
+		this->container1_.emplace_back(i);
+	}
+	//initialize second
+	std::copy(this->container1_.begin(), this->container1_.end(), std::back_inserter(this->container2_));
+
+	//assert
+	for(int i = 0; i < this->count_; ++i)
+	{
+		ASSERT_EQ(this->container2_[i].Id(), i);
+	}
 }
 
 
-TEST(VertexTestSuite, VertexAssignmentOperatorTest) 
+/*
+// assignment operator test
+TYPED_TEST(VertexTest, MoveConstructor) 
 {
-	// Arrange
-	std::vector<component::Vertex<int>> dataHolder = { component::Vertex<int>(0),
-	                                                   component::Vertex<int>(1),
-	                                                   component::Vertex<int>(2),
-	                                                   component::Vertex<int>(3) };
+	//
 
-	// Act (in this test arrange and act is merged)
-	dataHolder[0] = dataHolder[1];
-	dataHolder[3] = dataHolder[2] = dataHolder[1]; 
-	
-	// Assert
-	for(int i = 0; i < 4; i++)
-		EXPECT_EQ(dataHolder[i].Id(), dataHolder[1].Id());
 }
+*/
+#endif // GTEST_HAS_TYPED_TEST

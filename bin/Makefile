@@ -266,6 +266,32 @@ component-test/fast:
 	$(MAKE) $(MAKESILENT) -f test/graph-component-test/CMakeFiles/component-test.dir/build.make test/graph-component-test/CMakeFiles/component-test.dir/build
 .PHONY : component-test/fast
 
+#=============================================================================
+# Target rules for targets named implementation-test
+
+# Build rule for target.
+implementation-test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 implementation-test
+.PHONY : implementation-test
+
+# fast build rule for target.
+implementation-test/fast:
+	$(MAKE) $(MAKESILENT) -f test/graph-implementation-test/CMakeFiles/implementation-test.dir/build.make test/graph-implementation-test/CMakeFiles/implementation-test.dir/build
+.PHONY : implementation-test/fast
+
+#=============================================================================
+# Target rules for targets named component-support-test
+
+# Build rule for target.
+component-support-test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 component-support-test
+.PHONY : component-support-test
+
+# fast build rule for target.
+component-support-test/fast:
+	$(MAKE) $(MAKESILENT) -f test/graph-component-support-test/CMakeFiles/component-support-test.dir/build.make test/graph-component-support-test/CMakeFiles/component-support-test.dir/build
+.PHONY : component-support-test/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -278,6 +304,7 @@ help:
 	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... component-support-test"
 	@echo "... component-test"
 	@echo "... gmock"
 	@echo "... gmock_main"
@@ -285,6 +312,7 @@ help:
 	@echo "... graph-lib_test"
 	@echo "... gtest"
 	@echo "... gtest_main"
+	@echo "... implementation-test"
 .PHONY : help
 
 

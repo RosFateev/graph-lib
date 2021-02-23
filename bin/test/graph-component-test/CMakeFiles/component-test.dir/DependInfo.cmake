@@ -13,8 +13,6 @@ set(CMAKE_CXX_COMPILER_ID "GNU")
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "../test/graph-component-test/../../include"
   "../test/graph-component-test/../../lib/googletest-master/googletest/include"
-  "../lib/googletest-master/googletest/include"
-  "../lib/googletest-master/googletest"
   )
 
 # Targets to which this target links.

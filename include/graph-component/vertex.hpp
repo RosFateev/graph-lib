@@ -13,7 +13,7 @@
 // related
 // c
 // std 
-#include <utility>
+#include <utility>		// std::move
 // lib
 // user 
 
@@ -34,21 +34,22 @@ namespace component
 	public:
 
 		// constructors
-		explicit    Vertex(	IdType&&);
+		explicit    Vertex(	IdType);
 
 		            Vertex( const Vertex&);
 
-		           ~Vertex() {}
+		            Vertex(Vertex&&);
+
 
 		// operators
-		const Vertex&   operator=(   const Vertex&);
+		const Vertex&   operator=(	const Vertex&);
 		
 
 
 		// accessors
-		const IdType&     Id() const { return id_; }
+		const IdType&     Id() 				const 	{ return id_; }
 
-		void              Id(IdType&& inId) { id_ = std::forward<IdType>(inId); }
+		void              Id(IdType inId) 			{ id_ = inId; }
 	
 	private:
 		
@@ -67,14 +68,21 @@ namespace component
 	// Vertex definition
 	// Constructors
 	template <   class IdType>
-	Vertex<IdType>::Vertex(   IdType&&              inId) :       id_(std::forward<IdType>(inId))
+	Vertex<IdType>::Vertex(   IdType                	inId) :       id_(inId)
 	{	}
 
 
 
 	//
 	template <   class IdType>
-	Vertex<IdType>::Vertex(   const Vertex<IdType>& inVertex) :   id_(inVertex.id_)
+	Vertex<IdType>::Vertex(   const Vertex<IdType>& 	inVertex) :   id_(inVertex.id_)
+	{	}
+
+
+
+	//
+	template <   class IdType>
+	Vertex<IdType>::Vertex(   Vertex<IdType>&& 	inVertex) :   id_(std::move(inVertex.id_))
 	{	}
 
 

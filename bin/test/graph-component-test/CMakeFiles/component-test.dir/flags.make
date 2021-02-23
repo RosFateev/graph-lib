@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/rostislav/Documents/programming/c++/projects/graph-lib/test/graph-component-test/../../include -I/home/rostislav/Documents/programming/c++/projects/graph-lib/test/graph-component-test/../../lib/googletest-master/googletest/include -isystem /home/rostislav/Documents/programming/c++/projects/graph-lib/lib/googletest-master/googletest/include -isystem /home/rostislav/Documents/programming/c++/projects/graph-lib/lib/googletest-master/googletest
+CXX_INCLUDES = -I/home/rostislav/Documents/programming/c++/projects/graph-lib/test/graph-component-test/../../include -I/home/rostislav/Documents/programming/c++/projects/graph-lib/test/graph-component-test/../../lib/googletest-master/googletest/include
 
 CXX_FLAGS = -std=gnu++1z
 
