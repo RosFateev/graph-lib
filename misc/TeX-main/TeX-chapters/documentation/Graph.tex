@@ -1,0 +1,60 @@
+%define some usefull stuff
+\label{graph_lbl}
+
+Graph idtype, \ref{edge_lbl}edgetype
+idtype - used to identify individual vertices. Small primitive types are preferable. 
+edgetype -  used to specify edges
+
+\paragraph{Interface}
+
+
+Construction
+
+\begin{lstlisting}
+                 Graph();
+
+                 Graph(    const   Graph&)
+
+                 Graph(            std::initializer_list<init_list_type>&&);
+
+                 Graph(	           InputIterator,
+                                   InputIterator);
+
+const Graph&     operator=(const   Graph&);
+\end{lstlisting}
+
+
+Element accessors
+
+\begin{lstlisting}
+void                AddVertex(      id_type);
+
+vertex_type&        GetVertex(      id_type);
+
+void                RemoveVertex(   id_type);
+
+void                AddEdge(        id_type);
+
+edge_type&          GetEdge(        id_type,    id_type);
+
+void                RemoveEdge(     id_type,    id_type);
+
+edge_container&     GetNeighbours(  id_type);
+\end{lstlisting}
+
+Example:
+
+\begin{lstlisting}
+#include "graph-lib/graph.hpp"
+#include <string>
+
+
+int main(int argv, char** argc)
+{
+   Graph<int, UndirectedEdge> testGraph = { Vertex<int>(1),
+                                            Vertex<int>(2),
+                                            Vertex<int>(3) };
+   return 0;
+}
+
+\end{lstlisting}
