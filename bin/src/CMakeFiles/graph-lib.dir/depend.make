@@ -7,6 +7,7 @@ src/CMakeFiles/graph-lib.dir/main.cc.o: ../include/graph-component/edge-support.
 src/CMakeFiles/graph-lib.dir/main.cc.o: ../include/graph-component/edge.hpp
 src/CMakeFiles/graph-lib.dir/main.cc.o: ../include/graph-component/vertex-support.hpp
 src/CMakeFiles/graph-lib.dir/main.cc.o: ../include/graph-component/vertex.hpp
+src/CMakeFiles/graph-lib.dir/main.cc.o: ../include/graph-display/outputter.hpp
 src/CMakeFiles/graph-lib.dir/main.cc.o: ../include/graph-implementation/adjacency-list.hpp
 src/CMakeFiles/graph-lib.dir/main.cc.o: ../include/graph-implementation/incidence-matrix.hpp
 src/CMakeFiles/graph-lib.dir/main.cc.o: ../include/graph-implementation/manager.hpp

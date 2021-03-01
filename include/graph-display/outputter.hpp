@@ -179,9 +179,6 @@ namespace outputter
 		// construction:
 		// - copy construction methods are declared and deleted (in public section) - disallow
 		// move construction and make copy construction inaccessible
-	
-						Outputter(const Outputter&);
-		void 			operator=(const Outputter&);
 
 		// helper methods
 		// initializes an output frame
@@ -243,7 +240,7 @@ namespace outputter
 	// Base outputter definition
 	//
 	template<	class 	IdType>
-	void VertexOutObject::Draw()
+	void VertexOutObject<IdType>::Draw()
 	{
 
 	}
@@ -251,7 +248,7 @@ namespace outputter
 
 	template<	class 	IdType,
 				bool 	eFlag>
-	void EdgeOutObject::Draw()
+	void EdgeOutObject<IdType, eFlag>::Draw()
 	{
 
 	}
@@ -260,7 +257,7 @@ namespace outputter
 
 	template<	class 							IdType,
 				template< typename > typename 	EdgeType>
-	void GraphOutObject::Draw()
+	void GraphOutObject<IdType, EdgeType>::Draw()
 	{
 
 	}
@@ -318,7 +315,7 @@ namespace outputter
 	{
 		// Use a single buffered window in RGB mode (as opposed to a double-buffered
   		// window or color-index mode).
-  		glutInit(&argc, argv);
+  		glutInit(0, "");
   		glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 		
 

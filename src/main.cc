@@ -8,6 +8,9 @@
 #include "graph.hpp"
 #include "graph-algorithm/bfs.hpp"
 #include "graph-algorithm/dfs.hpp"
+#include "graph-display/outputter.hpp"
+
+
 
 
 
@@ -86,5 +89,7 @@ int main(int argc, char* argv[])
 	std::cout << "Size of an assembled DFS algorithm object - " << sizeof(dfsTest1) << std::endl;
 	/**/
 	
+	outputter::Outputter testOutputter;
+
   	return 0;
 }

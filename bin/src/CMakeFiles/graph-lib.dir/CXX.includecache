@@ -40,6 +40,14 @@ memory
 utility
 -
 
+../include/graph-display/outputter.hpp
+GL/glut.h
+-
+queue
+-
+memory
+-
+
 ../include/graph-implementation/adjacency-list.hpp
 initializer_list
 -
@@ -95,4 +103,6 @@ graph-algorithm/bfs.hpp
 /home/rostislav/Documents/programming/c++/projects/graph-lib/src/graph-algorithm/bfs.hpp
 graph-algorithm/dfs.hpp
 /home/rostislav/Documents/programming/c++/projects/graph-lib/src/graph-algorithm/dfs.hpp
+graph-display/outputter.hpp
+/home/rostislav/Documents/programming/c++/projects/graph-lib/src/graph-display/outputter.hpp
 
