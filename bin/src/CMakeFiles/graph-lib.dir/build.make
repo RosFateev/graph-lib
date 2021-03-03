@@ -98,6 +98,10 @@ graph__lib_EXTERNAL_OBJECTS =
 
 src/graph-lib: src/CMakeFiles/graph-lib.dir/main.cc.o
 src/graph-lib: src/CMakeFiles/graph-lib.dir/build.make
+src/graph-lib: /usr/lib/x86_64-linux-gnu/libOpenGL.so
+src/graph-lib: /usr/lib/x86_64-linux-gnu/libGLX.so
+src/graph-lib: /usr/lib/x86_64-linux-gnu/libGLU.so
+src/graph-lib: /usr/lib/x86_64-linux-gnu/libglut.so
 src/graph-lib: src/CMakeFiles/graph-lib.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/rostislav/Documents/programming/c++/projects/graph-lib/bin/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable graph-lib"
 	cd /home/rostislav/Documents/programming/c++/projects/graph-lib/bin/src && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/graph-lib.dir/link.txt --verbose=$(VERBOSE)

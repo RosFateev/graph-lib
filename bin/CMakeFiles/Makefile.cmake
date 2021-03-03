@@ -44,6 +44,8 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/usr/local/share/cmake-3.18/Modules/Compiler/GNU-C.cmake"
   "/usr/local/share/cmake-3.18/Modules/Compiler/GNU-CXX.cmake"
   "/usr/local/share/cmake-3.18/Modules/Compiler/GNU.cmake"
+  "/usr/local/share/cmake-3.18/Modules/FindGLUT.cmake"
+  "/usr/local/share/cmake-3.18/Modules/FindOpenGL.cmake"
   "/usr/local/share/cmake-3.18/Modules/FindPackageHandleStandardArgs.cmake"
   "/usr/local/share/cmake-3.18/Modules/FindPackageMessage.cmake"
   "/usr/local/share/cmake-3.18/Modules/FindPythonInterp.cmake"
@@ -55,6 +57,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/usr/local/share/cmake-3.18/Modules/Platform/Linux-GNU.cmake"
   "/usr/local/share/cmake-3.18/Modules/Platform/Linux.cmake"
   "/usr/local/share/cmake-3.18/Modules/Platform/UnixPaths.cmake"
+  "/usr/local/share/cmake-3.18/Modules/SelectLibraryConfigurations.cmake"
   "/usr/local/share/cmake-3.18/Modules/WriteBasicConfigVersionFile.cmake"
   )
 

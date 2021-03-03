@@ -25,12 +25,13 @@ add_subdirectory(test)
 
 
 # untested (!!!)
+find_package(OpenGL REQUIRED)
+find_package(GLUT REQUIRED)
 
-#set(LIBRARY_NAME graph_lib)
 
-#target_include_directories(${LIBRARY_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${LIBRARY_NAME}>
-#                                                   $<INSTALL_INTERFACE:include/${LIBRARY_NAME}>
-#)
-#target_include_directories(${LIBRARY_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-#                                                  $<INSTALL_INTERFACE:include>
-#)
+
+include_directories( ${OPENGL_INCLUDE_DIRS}  ${GLUT_INCLUDE_DIRS} )
+
+
+
+target_link_libraries(graph-lib ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} )
