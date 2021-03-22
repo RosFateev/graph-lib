@@ -1,4 +1,0 @@
-cd bin
-cmake ..
-cmake --build .
-cd ..
