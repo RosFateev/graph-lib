@@ -1,6 +1,9 @@
-This is a free-to-use graph c++ library.
+A graph library.
+
+Because of templates build is not needed.
 
 The requirements are:
 	- c++11
+	- sfml library (https://www.sfml-dev.org/index.php) for outputter component (optional)
 
 Any help materials (documentation, scheme, etc.) reside in misc folder.
