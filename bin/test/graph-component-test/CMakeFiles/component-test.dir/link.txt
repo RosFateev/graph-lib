@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcomponent-test.a CMakeFiles/component-test.dir/vertex-test.cc.o CMakeFiles/component-test.dir/edge-test.cc.o
-/usr/bin/ranlib libcomponent-test.a
