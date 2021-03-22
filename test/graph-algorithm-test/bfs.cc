@@ -1,2 +1,0 @@
-// Testing of BFS algorithm
-
