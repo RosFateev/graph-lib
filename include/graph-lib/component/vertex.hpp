@@ -60,12 +60,12 @@
 namespace component
 {
 
-//------------------------------------------------------------------------------
-/// @brief Basic graph component.
-///
-/// One of the most basic graph components representing a point on a plane.
-//------------------------------------------------------------------------------
-    template<typename id_type>
+    //------------------------------------------------------------------------------
+    /// @brief Basic graph component.
+    ///
+    /// One of the most basic graph components representing a point on a plane.
+    //------------------------------------------------------------------------------
+    template<class id_type>
     class Vertex
     {
     public:
@@ -106,7 +106,8 @@ namespace component
         /// @return Reference to itself.
         ///
         //------------------------------------------------------------------------------
-        const Vertex& operator=(const Vertex& vertex);
+        const Vertex&
+        operator=(const Vertex& vertex);
 
         //------------------------------------------------------------------------------
         ///
@@ -117,7 +118,8 @@ namespace component
         /// @return Reference to itself.
         ///
         //------------------------------------------------------------------------------
-        Vertex& operator=(Vertex&& vertex);
+        Vertex&
+        operator=(Vertex&& vertex);
 
         //------------------------------------------------------------------------------
         ///
@@ -126,7 +128,8 @@ namespace component
         /// @return Reference to vertex id.
         ///
         //------------------------------------------------------------------------------
-        const id_type& Id() const;
+        const id_type&
+        Id() const;
 
         //------------------------------------------------------------------------------
         ///
@@ -137,8 +140,9 @@ namespace component
         /// @param[in] value Intended coordinate value.
         ///
         //------------------------------------------------------------------------------
-        void Coordinate(int index,
-                        float value);
+        void
+        Coordinate(int index,
+                   float value);
 
         //------------------------------------------------------------------------------
         ///
@@ -149,8 +153,9 @@ namespace component
         /// @param[in] yValue Intended y coordinate value.
         ///
         //------------------------------------------------------------------------------
-        void Coordinate(float xValue,
-                        float yValue);
+        void
+        Coordinate(float xValue,
+                   float yValue);
 
         //------------------------------------------------------------------------------
         ///
@@ -161,7 +166,8 @@ namespace component
         /// @return Coordinate value.
         ///
         //------------------------------------------------------------------------------
-        float Coordinate(int) const;
+        float
+        Coordinate(int) const;
 
 
     private:
@@ -194,7 +200,7 @@ namespace component
     //  Value constructor
     //
     //------------------------------------------------------------------------------
-    template<typename id_type>
+    template<class id_type>
     Vertex<id_type>::Vertex(id_type id) : id_(id),
                                           x_(0.f),
                                           y_(0.f)
@@ -205,7 +211,7 @@ namespace component
     //  Copy constructor
     //
     //------------------------------------------------------------------------------
-    template<typename id_type>
+    template<class id_type>
     Vertex<id_type>::Vertex(const Vertex<id_type>& vertex) : id_(vertex.id_),
                                                              x_(vertex.x_),
                                                              y_(vertex.y_)
@@ -216,7 +222,7 @@ namespace component
     //  Move constructor
     //
     //------------------------------------------------------------------------------
-    template<typename id_type>
+    template<class id_type>
     Vertex<id_type>::Vertex(Vertex<id_type>&& vertex) : id_(std::move(vertex.id_)),
                                                         x_(vertex.x_),
                                                         y_(vertex.y_)
@@ -227,7 +233,7 @@ namespace component
     //  Copy assignment operator
     //
     //------------------------------------------------------------------------------
-    template<typename id_type>
+    template<class id_type>
     const Vertex<id_type>&
     Vertex<id_type>::operator=(const Vertex<id_type>& vertex)
     {
@@ -243,7 +249,7 @@ namespace component
     //  Move assignment operator
     //
     //------------------------------------------------------------------------------
-    template<typename id_type>
+    template<class id_type>
     Vertex<id_type>&
     Vertex<id_type>::operator=(Vertex<id_type>&& vertex)
     {
@@ -257,7 +263,7 @@ namespace component
     //  Id getter
     //
     //------------------------------------------------------------------------------
-    template<typename id_type>
+    template<class id_type>
     const id_type& 
     Vertex<id_type>::Id() const
     { 
@@ -269,9 +275,10 @@ namespace component
     //  Individual coordinate setter
     //
     //------------------------------------------------------------------------------
-    template<typename id_type>
-    void    Vertex<id_type>::Coordinate(    int     index, 
-                                            float   value)
+    template<class id_type>
+    void
+    Vertex<id_type>::Coordinate(int index, 
+                                float value)
     {
         (index == 0) ? x_ = value : y_ = value;
     }
@@ -281,9 +288,10 @@ namespace component
     //  Full coordinate setter
     //
     //------------------------------------------------------------------------------
-    template<typename id_type>
-    void    Vertex<id_type>::Coordinate(    float   xValue,
-                                            float   yValue)
+    template<class id_type>
+    void
+    Vertex<id_type>::Coordinate(float xValue,
+                                float yValue)
     {
         x_ = xValue;
         y_ = yValue;
@@ -294,8 +302,9 @@ namespace component
     //  Individual coordinate getter
     //
     //------------------------------------------------------------------------------
-    template<typename id_type>
-    float   Vertex<id_type>::Coordinate(    int     index) const
+    template<class id_type>
+    float
+    Vertex<id_type>::Coordinate(int index) const
     {
         return (index == 0) ? x_ : y_;
     }
