@@ -26,7 +26,11 @@
 // System
 // e.g.: #include <iostream>        // stdout
 #include <initializer_list>
-#include <utility>                      // std::move
+#include <utility>              // std::move
+#include <vector>
+#include <tuple>
+#include <map>
+#include <algorithm>            // std::for_each
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
@@ -75,16 +79,18 @@ namespace graph
     class Graph
     {
         using vertex_type           = component::Vertex<id_type>;
-        using vertex_ptr            = std::shared_ptr<vertex_type>;
+        using vertex_structure      = std::map<vertex_type,
+                                               int,
+                                               component::support::vertex_hash<id_type>
+                                               component::support::vertex_equal<id_type>>;
         using edge_type             = component::Edge<id_type>;
-        using edge_ptr              = std::shared_ptr<edge_type>;
-        //using edge_container        = std::vector<edge_type>;
-        using manager_type          = implementation::Manager<id_type>;
+        using edge_container        = std::vector<edge_type>;
+        using manager_type          = implementation::Manager;
         using vertex_init_type      = id_type;
         using edge_init_type        = std::tuple<id_type, int, int>;
         using init_list_type        = std::tuple<vertex_init_type, std::vector<edge_init_type>>;
-        using const_vertex_iterator = typename std::vector<vertex_ptr>::const_iterator;
-        using const_edge_iterator   = typename std::vector<edge_ptr>::const_iterator;
+        //using const_vertex_iterator = typename std::vector<vertex_ptr>::const_iterator;
+        //using const_edge_iterator   = typename std::vector<edge_ptr>::const_iterator;
 
     public:
 
@@ -94,7 +100,7 @@ namespace graph
         /// Creates an empty graph instance.
         //------------------------------------------------------------------------------
         Graph();
-        
+
         //------------------------------------------------------------------------------
         /// @brief Initializer list constructor.
         ///
@@ -273,7 +279,7 @@ namespace graph
         /// @return Edges to neighbours.
         ///
         //------------------------------------------------------------------------------
-        const edge_container&
+        edge_container
         GetNeighbours(id_type id) const;
 
         //------------------------------------------------------------------------------
@@ -284,43 +290,8 @@ namespace graph
         /// @return Edges to neighbours.
         ///
         //------------------------------------------------------------------------------        
-        const edge_container&
+        edge_container
         GetNeighbours(const vertex_type& vertex) const;
-
-
-        /*
-        //------------------------------------------------------------------------------
-        /// @brief v_begin.
-        ///
-        /// Returns iterator to the beginning of vertex container to enable iteration (like container.begin()).
-        /// @return constant vertex container iterator to the beginning
-        //------------------------------------------------------------------------------
-        const_vertex_iterator       v_begin() const;
-
-        //------------------------------------------------------------------------------
-        /// @brief v_end.
-        ///
-        /// Returns iterator to the end of vertex container to enable iteration (like container.end()).
-        /// @return constant vertex container iterator to the end
-        //------------------------------------------------------------------------------
-        const_vertex_iterator       v_end() const;
-
-        //------------------------------------------------------------------------------
-        /// @brief e_begin.
-        ///
-        /// Returns iterator to the beginning of edge container to enable iteration (like container.begin()).
-        /// @return constant edge container iterator to the beginning
-        //------------------------------------------------------------------------------
-        const_edge_iterator         e_begin() const;
-
-        //------------------------------------------------------------------------------
-        /// @brief e_end.
-        ///
-        /// Returns iterator to the end of edge container to enable iteration (like container.end()).
-        /// @return constant edge container iterator to the end
-        //------------------------------------------------------------------------------
-        const_edge_iterator         e_end() const;
-        */
 
         //------------------------------------------------------------------------------
         /// @brief Number of vertices in a graph.
@@ -334,11 +305,15 @@ namespace graph
 
     private:
         
+        /// @brief Mapping user preferred vertices to internal indexes.
+        vertex_structure vertexMap_;
+
         /// @brief Internal structures manager.
         manager_type    manager_;
     };
 
 } // namespace graph
+
 
 
 //------------------------------------------------------------------------------
@@ -363,131 +338,167 @@ namespace graph
 
     //------------------------------------------------------------------------------
     //
-    //  <Design related information>
+    //  Go through initializer list filling vertexMap_ structure.
     //
     //------------------------------------------------------------------------------
     template<class id_type>
-    Graph<id_type>::Graph(   std::initializer_list<typename Graph<id_type>::init_list_type>&& inList) : manager_(std::move(inList))
-    {   }   
+    Graph<id_type>::Graph(
+        std::initializer_list<typename Graph<id_type>::init_list_type>&& initList) : 
+                manager_()
+    {
+        int index = 0;
+        std::for_each(initList.begin(), initList.end(),
+            [&vertexMap_, &index](const auto& initVertEdgeTuple)
+            {
+                vertexMap_.[
+                    typename Graph<id_type>::vertex_type(
+                        std::get<0>(initVertEdgeTuple) )] = index++;
+
+                manager_.AddEdge()
+            });
+    }
 
     //------------------------------------------------------------------------------
     //
-    //  <Design related information>
+    //  Add vertex creates a new entry in map structure and implementation(s).
     //
     //------------------------------------------------------------------------------
     template<class id_type>
     void
-    Graph<id_type>::AddVertex(id_type   id)
+    Graph<id_type>::AddVertex(id_type id)
     {
-        manager_.AddVertex(id);
+        int index = vertexMap_.size();
+        // add vertex to structure
+        vertexMap_[typename Graph<id_type>::vertex_type(id)] = index;
+
+        // add vertex to implementation
+        manager_.AddVertex(index);
     }
     
     //------------------------------------------------------------------------------
     //
-    //  <Design related information>
+    //  Call AddVertex(id_type) method.
     //
     //------------------------------------------------------------------------------
     template<class id_type>
     void
-    Graph<id_type>::AddVertex(const typename Graph<id_type>::vertex_type&     vertex)
+    Graph<id_type>::AddVertex(const typename Graph<id_type>::vertex_type& vertex)
     {
-        manager_.AddVertex(vertex);
+        // call default method
+        AddVertex(vertex.Id());
     }
-    /*
-    //------------------------------------------------------------------------------
-    //
-    //  <Design related information>
-    //
-    //------------------------------------------------------------------------------
-    template<class id_type>  
-    void        Graph<id_type>::AddVertex(  typename Graph<id_type>::vertex_type&&      vertex)
-    {
-        manager_.AddVertex(std::forward(vertex));
-    }
-    */
 
     //------------------------------------------------------------------------------
     //
-    //  <Design related information>
+    //  Returns vertex from map structure if present.
     //
     //------------------------------------------------------------------------------
     template<class id_type>
     const typename Graph<id_type>::vertex_type&
-    Graph<id_type>::GetVertex(  id_type  id) const
+    Graph<id_type>::GetVertex(id_type id) const
     {
-        return manager_.GetVertex(id);
+        auto tpl = vertexMap_.find(typename Graph<id_type>::vertex_type(id));
+        
+        if ( (tpl != vertexMap_.end()) &&
+             (tpl->second != -1) )
+        {
+            return tpl->first;
+        }
+
+        return component::traits::invalid;
     }
 
     //------------------------------------------------------------------------------
     //
-    //  <Design related information>
+    //  Mark as invalid in map structure and remove from implementation.
     //
     //------------------------------------------------------------------------------
     template<class id_type>
     void
-    Graph<id_type>::RemoveVertex(  id_type     id) 
-    { 
+    Graph<id_type>::RemoveVertex(id_type id) 
+    {
+        // assign invalid value to structure
+        vertexMap_.at(typename Graph<id_type>::vertex_type(id)) = -1;
+
+        // remove from implementation
         manager_.RemoveVertex(id); 
     }
 
     //------------------------------------------------------------------------------
     //
-    //  <Design related information>
+    //  Look for proper indecies in structure and insert into implementation.
     //
     //------------------------------------------------------------------------------
     template<class id_type>
     void
-    Graph<id_type>::AddEdge(id_type     id1,
-                            id_type     id2,
-                            int         direction,
-                            int         weight)
+    Graph<id_type>::AddEdge(id_type id1,
+                            id_type id2,
+                            int direction,
+                            int weight)
     {
-        manager_.AddEdge(id1, id2, direction, weight);
+        AddEdge(typename Graph<id_type>::vertex_type(id),
+                typename Graph<id_type>::vertex_type(id),
+                direction,
+                weight);
     }
 
     //------------------------------------------------------------------------------
     //
-    //  <Design related information>
+    //  Look for proper indecies in structure and insert into implementation.
     //
     //------------------------------------------------------------------------------
     template<class id_type>
     void
-    Graph<id_type>::AddEdge(const typename Graph<id_type>::vertex_type&  vertex1,
-                            const typename Graph<id_type>::vertex_type&  vertex2,
-                            int                                          direction,
-                            int                                          weight)
+    Graph<id_type>::AddEdge(const typename Graph<id_type>::vertex_type& vertex1,
+                            const typename Graph<id_type>::vertex_type& vertex2,
+                            int direction,
+                            int weight)
     {
-        manager_.AddEdge(vertex1, vertex2, direction, weight);
+        manager_.AddEdge(vertexMap_.at(vertex1),
+                         vertexMap_.at(vertex2), direction, weight);
     }
 
     //------------------------------------------------------------------------------
     //
-    //  <Design related information>
+    //  If edge exist in implementation - construct and return Edge object
     //
     //------------------------------------------------------------------------------
     template<class id_type>
     const typename Graph<id_type>::edge_type&
-    Graph<id_type>::GetEdge(id_type     id1,
-                            id_type     id2,
-                            int         direction,
-                            int         weight) const
+    Graph<id_type>::GetEdge(id_type id1,
+                            id_type id2,
+                            int direction,
+                            int weight) const
     {
-        return manager_.GetEdge(id1, id2, direction, weight);
+        return GetEdge(typename Graph<id_type>::vertex_type(id1),
+                       typename Graph<id_type>::vertex_type(id2),
+                       direction, weight);
     }
 
     //------------------------------------------------------------------------------
     //
-    //  <Design related information>
+    //  If edge exist in implementation - construct and return Edge object
     //
     //------------------------------------------------------------------------------
     template<class id_type>
     const typename Graph<id_type>::edge_type&
     Graph<id_type>::GetEdge(const typename Graph<id_type>::vertex_type&  vertex1,
                             const typename Graph<id_type>::vertex_type&  vertex2,
-                            int                                          direction,
-                            int                                          weight) const
+                            int direction,
+                            int weight) const
     {
-        return manager_.GetEdge(vertex1, vertex2, direction, weight);
+        // look for endpoints
+        auto tpl1 = vertexMap_.find(vertex1);
+        auto tpl2 = vertexMap_.find(vertex2);
+
+        // if edge exists
+        if (manager_.Edge(tpl1->second,
+                          tpl2->second, direction, weight))
+        {
+            return typename Graph<id_type>::edge_type(tpl1->first,
+                                                      tpl2->first,
+                                                      direction, weight);
+        }
     }
     
     //------------------------------------------------------------------------------
@@ -497,12 +508,14 @@ namespace graph
     //------------------------------------------------------------------------------
     template<class id_type>
     void
-    Graph<id_type>::RemoveEdge( id_type     id1,
-                                            id_type     id2,
-                                            int         direction,
-                                            int         weight)
+    Graph<id_type>::RemoveEdge(id_type id1,
+                               id_type id2,
+                               int direction,
+                               int weight)
     {
-        manager_.RemoveEdge(id1, id2, direction, weight);
+        RemoveEdge(typename Graph<id_type>::vertex_type(id1),
+                   typename Graph<id_type>::vertex_type(id2),
+                   direction, weight);
     }
 
     //------------------------------------------------------------------------------
@@ -512,12 +525,14 @@ namespace graph
     //------------------------------------------------------------------------------
     template<class id_type>
     void
-    Graph<id_type>::RemoveEdge(     const typename Graph<id_type>::vertex_type&  vertex1,
-                                                const typename Graph<id_type>::vertex_type&  vertex2,
-                                                int                                          direction,
-                                                int                                          weight)
+    Graph<id_type>::RemoveEdge(const typename Graph<id_type>::vertex_type& vertex1,
+                               const typename Graph<id_type>::vertex_type& vertex2,
+                               int direction,
+                               int weight)
     {
-        manager_.RemoveEdge(vertex1, vertex2, direction, weight);
+        manager_.RemoveEdge(vertexMap_.at(vertex1),
+                            vertexMap_.at(vertex2),
+                            direction, weight);
     }
 
     //------------------------------------------------------------------------------
@@ -526,9 +541,10 @@ namespace graph
     //
     //------------------------------------------------------------------------------
     template<class id_type>
-    typename Graph<id_type>::edge_container&    Graph<id_type>::GetNeighbours(   ArgT&& inArg)
+    typename Graph<id_type>::edge_container
+    Graph<id_type>::GetNeighbours(id_type id)
     { 
-        return manager_.Neighbours(std::forward<ArgT>(inArg));
+        return GetNeighbours(typename Graph<id_type>::vertex_type(id));
     }
 
     //------------------------------------------------------------------------------
@@ -537,56 +553,28 @@ namespace graph
     //
     //------------------------------------------------------------------------------
     template<class id_type>
-    typename Graph<id_type>::edge_container&    Graph<id_type>::GetNeighbours(   ArgT&& inArg) const
-    { 
-        return manager_.Neighbours(std::forward<ArgT>(inArg));
-    }
+    typename Graph<id_type>::edge_container
+    Graph<id_type>::GetNeighbours(const typename Graph<id_type>::vertex_type& vertex) const
+    {
+        // resulting container
+        typename Graph<id_type>::edge_container neighbours;
+        // fetch from implementation
+        auto mNeighbours = manager_.GetNeighbours(vertexMap_.at(vertex));
 
-    /*
-    //------------------------------------------------------------------------------
-    //
-    //  <Design related information>
-    //
-    //------------------------------------------------------------------------------
-    template<class id_type>
-    typename Graph<id_type>::const_vertex_iterator      Graph<id_type>::v_begin() const
-    {
-        return manager_.v_begin();
+        std::for_each(mNeighbours.begin(), mNeighbours.end(),
+            [&neighbours](const auto& intEdge)
+            {
+                neighbours.push_back(
+                    typename Graph<id_type>::edge_type(
+                        vertex,
+                        typename Graph<id_type>::vertex_type(intEdge.GetVertex(1)),
+                        intEdge.GetDirection(),
+                        intEdge.GetWeight())
+                    );
+            });
+        
+        return neighbours;
     }
-    
-    //------------------------------------------------------------------------------
-    //
-    //  <Design related information>
-    //
-    //------------------------------------------------------------------------------
-    template<class id_type>
-    typename Graph<id_type>::const_vertex_iterator      Graph<id_type>::v_end() const
-    {
-        return manager_.v_end();
-    }
-    
-    //------------------------------------------------------------------------------
-    //
-    //  <Design related information>
-    //
-    //------------------------------------------------------------------------------
-    template<class id_type>
-    typename Graph<id_type>::const_edge_iterator      Graph<id_type>::e_begin() const
-    {
-        return manager_.e_begin();
-    }
-    
-    //------------------------------------------------------------------------------
-    //
-    //  <Design related information>
-    //
-    //------------------------------------------------------------------------------
-    template<class id_type>
-    typename Graph<id_type>::const_edge_iterator      Graph<id_type>::e_end() const
-    {
-        return manager_.e_end();
-    }
-    */
 
     //------------------------------------------------------------------------------
     //
@@ -597,9 +585,15 @@ namespace graph
     int
     Graph<id_type>::Size() const
     {
-        return manager_.Size();
-    }
+        int length = 0;
 
+        // if value is -1 => vertex is invalid
+        std::for_each(vertexMap_.begin(), vertexMap_.end(),
+            [&length](const auto& kvPair)
+            { kvPair->second != -1 ? ++length : length; });
+
+        return length;
+    }
 
 
 } //    namespace graph

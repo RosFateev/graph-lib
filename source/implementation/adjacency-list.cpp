@@ -107,15 +107,16 @@ namespace implementation
 
     //------------------------------------------------------------------------------
     //
-    //  <Design related information>
+    //  Push empty edge container.
     //  
     //------------------------------------------------------------------------------
     void
     AdjacencyList::AddVertex(int id)
     {
-        list_[vertexPtr->Id()] = typename AdjacencyList::edge_container();
+        list_.push_back(typename AdjacencyList::edge_container());
     }
 
+    /*
     //------------------------------------------------------------------------------
     //
     //  <Design related information>
@@ -126,6 +127,7 @@ namespace implementation
     {
         return list_.at(inId).front()->GetPointer(0);
     }
+    */
 
     // currently finds a SINGLE occurence in neighbours list - improve find_if()
     //------------------------------------------------------------------------------
@@ -136,16 +138,21 @@ namespace implementation
     void
     AdjacencyList::RemoveVertex(int id)
     {
-        // erase vertex
-        list_.erase(list_.find(inId));
+        // overwrite with empty container
+        list_[id] = typename AdjacencyList::edge_container();
 
         // erase all edges in other vertices lists
-        for (auto key_iterator = list_.begin(); key_iterator != list_.end(); ++key_iterator)
-        {
-            (key_iterator->second).erase( 
-                    std::find_if((key_iterator->second).begin(), (key_iterator->second).end(), 
-                        [inId]( auto& edgePtr){ return edgePtr->GetVertex(1).Id() == inId; }) );
-        } 
+        std::for_each(list_.begin(), list_.end(),
+            [&id](auto& edgeContainerIter)
+            {
+                edgeContainerIter->erase(
+                    std::find_if(edgeContainer.begin(), edgeContainer.end(),
+                    [&id](auto& edge)
+                    {
+                        return edge->GetVertex(1).Id() == id;
+                    }));
+
+            });
     }
 
     //------------------------------------------------------------------------------
@@ -154,9 +161,13 @@ namespace implementation
     //  
     //------------------------------------------------------------------------------
     void
-    AdjacencyList::AddEdge(const edge_ptr& edge) 
+    AdjacencyList::AddEdge(int id1,
+                           int id2,
+                           int direction,
+                           int weight) 
     {
-        list_.at(edge->GetVertex(0).Id()).push_back(edge);
+        list_.at(id1).push_back(typename AdjacencyList::edge_type(id1, id2,
+                                                                  direction, weight));
     }
 
     //------------------------------------------------------------------------------
@@ -164,17 +175,24 @@ namespace implementation
     //  <Design related information>
     //  
     //------------------------------------------------------------------------------
-    const typename AdjacencyList::edge_ptr&
-    AdjacencyList::GetEdge(int id1,
-                           int id2,
-                           int direction,
-                           int weight) const
+    const bool
+    AdjacencyList::Edge(int id1,
+                        int id2,
+                        int direction,
+                        int weight) const
     {
-        return *std::find_if(list_.at(inId1).begin(), list_.at(inId1).end(), 
-            [inId2, direction, weight]( auto& edgePtr) { 
-                                return ((edgePtr->GetVertex(1).Id() == inId2) &&
-                                        (edgePtr->Direction() == direction) &&
-                                        (edgePtr->Weight() == weight));} );
+        if (std::find_if(list_.at(id1).begin(), list_.at(id1).end(),
+            [&id2, &direction, &weight](auto pEdge)
+            {
+                return ((pEdge->GetVertex(1).Id() == inId2) &&
+                        (pEdge->Direction() == direction) &&
+                        (pEdge->Weight() == weight));
+            }) != list_.at(inId1).end())
+        {
+            return true;
+        }
+
+        return false;
     }
 
     //------------------------------------------------------------------------------
@@ -188,11 +206,14 @@ namespace implementation
                               int direction,
                               int weight)
     {
-        list_.at(inId1).erase( std::find_if( list_.at(inId1).begin(), list_.at(inId1).end(),
-            [inId2, direction, weight]( auto& edgePtr){ 
-                                                        return ((edgePtr->GetVertex(1).Id() == inId2) &&
-                                                                (edgePtr->Direction() == direction) &&
-                                                                (edgePtr->Weight() == weight));}) );
+        list_.at(id1).erase(
+            std::find_if(list_.at(id1).begin(), list_.at(id1).end(),
+            [&inId2, &direction, &weight]( auto& pEdge)
+            { 
+                return ((pEdge->GetVertex(1).Id() == inId2) &&
+                        (pEdge->Direction() == direction) &&
+                        (pEdge->Weight() == weight));
+            }));
     }
 
     //------------------------------------------------------------------------------
@@ -203,40 +224,8 @@ namespace implementation
     const typename AdjacencyList::edge_container&
     AdjacencyList::GetNeighbours(int id) const
     {
-        return list_.at(Vertex(inId));
+        return list_.at(id);
     }
-
-    /*
-    // DONE
-    //------------------------------------------------------------------------------
-    //
-    //  <Design related information>
-    //
-    //------------------------------------------------------------------------------
-    void AdjacencyList::print()
-    {
-        std::cout << "Printing a graph:" << std::endl;
-        //std::map<vertex_type, std::lis<id_type>>>;
-
-        //output vertexes 
-        typename data_structure::const_iterator mapIter(list_.begin());
-
-        for(; mapIter != list_.end(); ++mapIter)
-        {
-            //output vertex
-
-            std::cout << "[ " << mapIter->first->Id() << " ] :";
-            //output edges
-            typename edge_container::const_iterator vectIter(mapIter->second.begin());
-
-            for(; vectIter != mapIter->second.end(); ++vectIter)
-            {
-                std::cout << "  ( " << vectIter->First()->Id() << ", " << vectIter->Second()->Id() << ")";
-            }
-            std::cout << std::endl;
-        }
-    }
-    */
 
 } //    namespace implementation
 

@@ -119,6 +119,7 @@ namespace implementation
         virtual void
         AddVertex(int id) = 0;
 
+        /*
         //------------------------------------------------------------------------------
         /// @brief Confirms if vertex exists.
         ///
@@ -130,6 +131,7 @@ namespace implementation
         //------------------------------------------------------------------------------
         virtual bool
         GetVertex(int id) const = 0;
+        */
 
         //------------------------------------------------------------------------------
         /// @brief Removes vertex with id from implementation.
@@ -141,13 +143,22 @@ namespace implementation
         RemoveVertex(int id) = 0;
 
         //------------------------------------------------------------------------------
-        /// @brief Add edge pointer to implementation.
+        /// @brief Add edge to implementation.
         ///
-        /// @param[in] pEdge Pointer to edge.
+        /// @param[in] id1 First vertex id.
+        ///
+        /// @param[in] id2 Second vertex id.
+        ///
+        /// @param[in] direction How vertices are connected.
+        ///
+        /// @param[in] weight Edge weight.
         ///
         //------------------------------------------------------------------------------
         virtual void
-        AddEdge(const edge_ptr& pEdge) = 0;
+        AddEdge(int id1,
+                int id2,
+                int direction,
+                int weight) = 0;
         
         //------------------------------------------------------------------------------
         /// @brief Get edge pointer for given vertex ids.
@@ -163,11 +174,11 @@ namespace implementation
         /// @return Pointer to desired edge.
         ///
         //------------------------------------------------------------------------------
-        virtual const edge_ptr&
-        GetEdge(int id1,
-                int id2,
-                int direction,
-                int weight) const = 0;
+        virtual bool
+        Edge(int id1,
+             int id2,
+             int direction,
+             int weight) const = 0;
 
         //------------------------------------------------------------------------------
         /// @brief Removes edge pointer with given vertex ids.

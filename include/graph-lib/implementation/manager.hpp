@@ -82,20 +82,14 @@ namespace implementation
     class Manager
     {
         //type aliases
-        using vertex_type               = component::Vertex<id_type>;
-        using vertex_ptr                = std::shared_ptr<vertex_type>;
-        using edge_type                 = component::Edge<id_type>;
-        using edge_ptr                  = std::shared_ptr<edge_type>;
-        using vertex_container          = std::vector<vertex_ptr>;
-        using edge_container            = std::vector<edge_ptr>;
-        using vertex_init_type          = id_type;
-        using edge_init_type            = std::tuple<id_type, int, int>;
+        using edge_type                 = component::Edge<int>;
+        using edge_container            = std::vector<edge_type>;
+        using vertex_init_type          = int;
+        using edge_init_type            = std::tuple<int, int, int>;
         using init_list_type            = std::tuple<vertex_init_type, std::vector<edge_init_type>>;
-        using base_implementation       = BaseImplementation<id_type>;
+        using base_implementation       = BaseImplementation<int>;
         using implementation_ptr        = std::unique_ptr<base_implementation>;
         using implementation_container  = std::vector<implementation_ptr>;
-        using const_vertex_iterator     = typename vertex_container::const_iterator;
-        using const_edge_iterator       = typename edge_container::const_iterator;
 
     public:
 
@@ -121,6 +115,7 @@ namespace implementation
         void
         AddVertex(int id);
 
+        /*
         //------------------------------------------------------------------------------
         /// @brief Gets vertex with specific id.
         ///
@@ -132,6 +127,7 @@ namespace implementation
         //------------------------------------------------------------------------------   
         bool
         GetVertex(int id) const;
+        */
 
         //------------------------------------------------------------------------------
         /// @brief Removes vertex with id from a graph.
@@ -162,7 +158,7 @@ namespace implementation
                 int weight);
 
         //------------------------------------------------------------------------------
-        /// @brief Finds edge in a graph using given vertex ids and returns it.
+        /// @brief Confirm edge existence using given vertex ids.
         ///
         /// @param[in] id1 First vertex id.
         ///
@@ -172,14 +168,15 @@ namespace implementation
         ///
         /// @param[in] weight Edge weight.
         ///
-        /// @return Desired edge.
+        /// @retval True Edge exists.
+        /// @retval False Otherwise.
         ///
         //------------------------------------------------------------------------------
-        const edge_type&
-        GetEdge(int id1,
-                int id2,
-                int direction,
-                int weight) const;
+        bool
+        Edge(int id1,
+             int id2,
+             int direction,
+             int weight) const;
 
         //------------------------------------------------------------------------------
         /// @brief Removes edge from a graph using input vertex ids.
@@ -212,35 +209,6 @@ namespace implementation
 
         /*
         //------------------------------------------------------------------------------
-        /// @brief v_begin
-        //------------------------------------------------------------------------------
-        /// @return constant vertex container iterator to the beginning
-   
-        const_vertex_iterator       v_begin() const;
-
-        //------------------------------------------------------------------------------
-        /// @brief v_end
-        //------------------------------------------------------------------------------
-        /// @return constant vertex container iterator to the end
-   
-        const_vertex_iterator       v_end() const;
-
-        //------------------------------------------------------------------------------
-        /// @brief e_begin
-        //------------------------------------------------------------------------------
-        /// @return constant edge container iterator to the beginning
-   
-        const_edge_iterator         e_begin() const;
-
-        //------------------------------------------------------------------------------
-        /// @brief e_end
-        //------------------------------------------------------------------------------
-        /// @return constant edge container iterator to the end
-   
-        const_edge_iterator         e_end() const;
-        */
-
-        //------------------------------------------------------------------------------
         /// @brief Number of vertices in a graph.
         ///
         /// @return Vertex count.
@@ -248,7 +216,7 @@ namespace implementation
         //------------------------------------------------------------------------------
         int
         Size() const;
-
+        */
 
     private:
 
@@ -279,41 +247,9 @@ namespace implementation
         void
         ChangeImplementation(int index);
 
-        //------------------------------------------------------------------------------
-        /// @brief Returns a reference to active implementation.
-        ///
-        /// @return Pointer to active implementation.
-        ///
-        //------------------------------------------------------------------------------  
-        implementation_ptr&
-        GetActiveImplementation();
-
-        //------------------------------------------------------------------------------
-        /// @brief For a given ids, direction and weight, returns edge.
-        ///
-        /// @param[in] id1 First vertex id.
-        ///
-        /// @param[in] id2 Second vertex id.
-        ///
-        /// @param[in] direction How vertices are connected.
-        ///
-        /// @param[in] weight Edge weight.
-        ///
-        /// @return const edge_ptr&
-        //------------------------------------------------------------------------------
-        const edge_ptr&
-        GetEdgePtr(int id1,
-                   int id2,
-                   int direction,
-                   int weight) const;
-        
-
 
     private:
 
-        /// @brief Graph edges.
-        edge_container edges_;
-        
         /// @brief Index of active implementation.
         int activeIndex_;
 
@@ -381,38 +317,36 @@ namespace implementation
 
     //------------------------------------------------------------------------------
     //
-    //  <Design related information>
+    //  Call implementations methods.
     //
     //------------------------------------------------------------------------------
     void
     Manager::AddVertex(int id)
     {
-        vertices_.emplace_back( new typename Manager::vertex_type(id));
-
         // add vertex pointer to implementation structures
-        for (auto iter = implementations_.begin(); iter != implementations_.end(); ++iter)
-        {
-            (*iter)->AddVertex(vertices_.back());
-        }
+        std::for_each(implementations_.begin(), implementations_.end(),
+            [&id](auto& pImplementation)
+            { pImplementation->AddVertex(id); });
     }
     
     //------------------------------------------------------------------------------
     //
-    //  <Design related information>
+    //  Call implementations methods.
     //
     //------------------------------------------------------------------------------
     void
     Manager::RemoveVertex(int id)
     {
-        // remove vertex from each implementation
+        // remove vertex from each implementation structure
         std::for_each(implementations_.begin(), implementations_.end(), 
-            [id](auto& implementation) { implementation->RemoveVertex(id); });
+            [&id](auto& pImplementation)
+            { pImplementation->RemoveVertex(id); });
         // remove from data holder
     }
 
     //------------------------------------------------------------------------------
     //
-    //  <Design related information>
+    //  Call implementations methods.
     //
     //------------------------------------------------------------------------------
     void
@@ -421,27 +355,29 @@ namespace implementation
                      int direction,
                      int weight)
     {
-        edges_.emplace_back(new typename Manager::edge_type(GetVertexPtr(id1), GetVertexPtr(id1), direction, weight));
-
-        // add vertex pointer to implementation structures
-        for (auto iter = implementations_.begin(); iter != implementations_.end(); ++iter)
-        {
-            (*iter)->AddEdge(edges_.back());
-        }
+        // remove vertex from each implementation structure
+        std::for_each(implementations_.begin(), implementations_.end(), 
+            [&id1, &id2, direction, weight](auto& pImplementation)
+            { pImplementation->AddEdge(id1, id2, direction, weight); });
     }
 
     //------------------------------------------------------------------------------
     //
-    //  <Design related information>
+    //  Confirm edge existence.
     //
     //------------------------------------------------------------------------------
-    const typename Manager::edge_type&
-    Manager::GetEdge(int id1,
-                     int id2,
-                     int direction,
-                     int weight) const
+    bool
+    Manager::Edge(int id1,
+                  int id2,
+                  int direction,
+                  int weight) const
     {
-        return *GetEdgePtr(id1, id2, direction, weight);
+        if (implementations_[activeIndex_]->Edge(id1, id2, direction, weight))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     //------------------------------------------------------------------------------
@@ -457,13 +393,8 @@ namespace implementation
     {
         // remove vertex from each implementation
         std::for_each(implementations_.begin(), implementations_.end(), 
-            [id1, id2, direction, weight](auto& implementation) { implementation->RemoveEdge(id1, id2, direction, weight); } );
-
-        for (auto iter = implementations_.begin(); iter != implementations_.end(); ++iter)
-        {
-            (*iter)->RemoveEdge(id1,id2);
-        }
-        // remove from data holder
+            [&id1, &id2, &direction, &weight](auto& implementation)
+            { implementation->RemoveEdge(id1, id2, direction, weight); } );
     }
 
     //------------------------------------------------------------------------------
@@ -474,51 +405,10 @@ namespace implementation
     typename Manager::const edge_container&
     Manager::GetNeighbours(int id)
     { 
-        return list_.Neighbours(std::forward<ArgT>(inArg));
+        return implementations_[activeIndex_]->GetNeighbours(id);
     }
 
     /*
-    //------------------------------------------------------------------------------
-    //
-    //  <Design related information>
-    //
-    //------------------------------------------------------------------------------
-    typename Manager::const_vertex_iterator      Manager::v_begin() const
-    {
-        return vertices_.begin();
-    }
-    
-    //------------------------------------------------------------------------------
-    //
-    //  <Design related information>
-    //
-    //------------------------------------------------------------------------------
-    typename Manager::const_vertex_iterator      Manager::v_end() const
-    {
-        return vertices_.end();
-    }
-    
-    //------------------------------------------------------------------------------
-    //
-    //  <Design related information>
-    //
-    //------------------------------------------------------------------------------
-    typename Manager::const_edge_iterator      Manager::e_begin() const
-    {
-        return edges_.begin();
-    }
-    
-    //------------------------------------------------------------------------------
-    //
-    //  <Design related information>
-    //
-    //------------------------------------------------------------------------------
-    typename Manager::const_edge_iterator      Manager::e_end() const
-    {
-        return edges_.end();
-    }
-    */
-
     //------------------------------------------------------------------------------
     //
     //  <Design related information>
@@ -529,6 +419,7 @@ namespace implementation
     {
         return vertices_.size();
     }
+    */
 
     //------------------------------------------------------------------------------
     //
@@ -562,33 +453,6 @@ namespace implementation
     {
         activeIndex_ = index;
     }
-
-    //------------------------------------------------------------------------------
-    //
-    //  <Design related information>
-    //
-    //------------------------------------------------------------------------------
-    typename Manager::implementation_ptr&
-    Manager::GetActiveImplementation()
-    {
-        return implementations_[activeIndex_];
-    }
-
-    //------------------------------------------------------------------------------
-    //
-    //  <Design related information>
-    //
-    //------------------------------------------------------------------------------
-    const typename Manager::edge_ptr&
-    Manager::GetEdgePtr(int id1,
-                        int id2,
-                        int direction,
-                        int weight) const
-    {
-        return implementations_[activeIndex_]->GetEdge(id1, id2, direction, weight);
-    }
-    
-
 
 } //    namespace implementation
 

@@ -26,11 +26,9 @@
 // System
 // e.g.: #include <iostream>        // stdout
 #include <initializer_list>
+#include <vector>
 #include <list>
-#include <map>
-#include <utility>                      // std::hash, std::forward
-#include <iostream>
-#include <algorithm>                    // std::find
+#include <algorithm>                // std::for_each, std::find
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
@@ -71,8 +69,8 @@ namespace implementation
     class AdjacencyList : public BaseImplementation
     {
         using edge_type             = component::Edge<int>;
-        using edge_ptr              = std::shared_ptr<edge_type>;
-        using edge_container        = std::list<edge_ptr>;
+        using edge_container        = std::list<edge_type>;
+        using data_structure        = std::vector<edge_container>;
         using vertex_init_container = std::vector<int>;
         using edge_init_container   = std::vector<edge_ptr>;
 
@@ -108,6 +106,7 @@ namespace implementation
         virtual void
         AddVertex(int id) override;
 
+        /*
         //------------------------------------------------------------------------------
         /// @brief Confirms if vertex exists.
         ///
@@ -119,6 +118,7 @@ namespace implementation
         //------------------------------------------------------------------------------
         virtual bool
         GetVertex(int id) const override;
+        */
 
         //------------------------------------------------------------------------------
         /// @brief Removes vertex with id from implementation.
@@ -130,13 +130,22 @@ namespace implementation
         RemoveVertex(int id) override;
 
         //------------------------------------------------------------------------------
-        /// @brief Add edge pointer to adjacency list.
+        /// @brief Add edge to implementation.
         ///
-        /// @param[in] pEdge Pointer to edge.
+        /// @param[in] id1 First vertex id.
+        ///
+        /// @param[in] id2 Second vertex id.
+        ///
+        /// @param[in] direction How vertices are connected.
+        ///
+        /// @param[in] weight Edge weight.
         ///
         //------------------------------------------------------------------------------
         virtual void
-        AddEdge(const edge_ptr& pEdge) override;
+        AddEdge(int id1,
+                int id2,
+                int direction,
+                int weight) override;
         
         //------------------------------------------------------------------------------
         /// @brief Get edge pointer for given vertex ids.
@@ -152,11 +161,11 @@ namespace implementation
         /// @return Pointer to desired edge.
         ///
         //------------------------------------------------------------------------------
-        virtual const edge_ptr&
-        GetEdge(int id1,
-                int id2,
-                int direction,
-                int weight) const override;
+        virtual bool
+        Edge(int id1,
+             int id2,
+             int direction,
+             int weight) const override;
 
         //------------------------------------------------------------------------------
         /// @brief Removes edge pointer with given vertex ids.
