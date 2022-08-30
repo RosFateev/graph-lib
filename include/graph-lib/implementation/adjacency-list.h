@@ -32,8 +32,8 @@
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
-#include <graph-lib/component/edge.hpp>
-#include <graph-lib/implementation/implementation.hpp>
+#include "graph-lib/component/edge.hpp"
+#include "graph-lib/implementation/implementation.h"
 
 
 //------------------------------------------------------------------------------
@@ -71,8 +71,8 @@ namespace implementation
         using edge_type             = component::Edge<int>;
         using edge_container        = std::list<edge_type>;
         using data_structure        = std::vector<edge_container>;
-        using vertex_init_container = std::vector<int>;
-        using edge_init_container   = std::vector<edge_ptr>;
+        //using vertex_init_container = std::vector<int>;
+        //using edge_init_container   = std::vector<edge_ptr>;
 
     public:
 
@@ -81,6 +81,7 @@ namespace implementation
         //------------------------------------------------------------------------------
         AdjacencyList();
         
+        /*
         //------------------------------------------------------------------------------
         /// @brief Value constructor
         ///
@@ -91,6 +92,7 @@ namespace implementation
         //------------------------------------------------------------------------------
         AdjacencyList(const vertex_init_container&, 
                       const edge_init_container&);
+        */
 
         //------------------------------------------------------------------------------
         /// @brief Virtual destructor.
@@ -144,7 +146,7 @@ namespace implementation
         virtual void
         AddEdge(int id1,
                 int id2,
-                int direction,
+                component::traits::edge_direction direction,
                 int weight) override;
         
         //------------------------------------------------------------------------------
@@ -164,7 +166,7 @@ namespace implementation
         virtual bool
         Edge(int id1,
              int id2,
-             int direction,
+             component::traits::edge_direction direction,
              int weight) const override;
 
         //------------------------------------------------------------------------------
@@ -182,7 +184,7 @@ namespace implementation
         void
         RemoveEdge(int id1,
                    int id2,
-                   int direction,
+                   component::traits::edge_direction direction,
                    int weight) override;
 
         //------------------------------------------------------------------------------

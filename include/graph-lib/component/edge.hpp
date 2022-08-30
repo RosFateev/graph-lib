@@ -30,8 +30,8 @@
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
-#include <graph-lib/component/vertex.hpp>
-#include <graph-lib/component/edge-support.hpp>
+#include "graph-lib/component/vertex.hpp"
+#include "graph-lib/component/edge-support.hpp"
 
 //------------------------------------------------------------------------------
 // Global references
@@ -80,7 +80,7 @@ namespace component
 	{		
 		using vertex_type 			= Vertex<id_type>;
 		using vertex_container 		= std::array<const vertex_type, 2>;
-		using connection_property	= std::tuple<int, int>;
+		using connection_property	= std::tuple<traits::edge_direction, int>;
 
 	public:
 
@@ -97,7 +97,7 @@ namespace component
 		//------------------------------------------------------------------------------
 		Edge(const vertex_type& vertex1, 
 			 const vertex_type& vertex2,
-			 int direction = traits::edge_direction::none, 
+			 traits::edge_direction direction = traits::edge_direction::none, 
 			 int weight = 0);
 
 		//------------------------------------------------------------------------------
@@ -140,7 +140,7 @@ namespace component
 		/// @return Direction type.
 		///
 		//------------------------------------------------------------------------------
-		virtual int
+		virtual traits::edge_direction
 		GetDirection() const;
 
 		//------------------------------------------------------------------------------
@@ -189,7 +189,7 @@ namespace component
 	class Edge<int>
 	{
 		using vertex_container 		= std::array<int, 2>;
-		using connection_property	= std::tuple<int, int>;
+		using connection_property	= std::tuple<traits::edge_direction, int>;
 
 	public:
 
@@ -206,7 +206,7 @@ namespace component
 		//------------------------------------------------------------------------------
 		Edge(int index1, 
 			 int index2,
-			 int direction = traits::edge_direction::none, 
+			 traits::edge_direction direction = traits::edge_direction::none, 
 			 int weight = 0);
 
 		//------------------------------------------------------------------------------
@@ -249,7 +249,7 @@ namespace component
 		/// @return Direction type.
 		///
 		//------------------------------------------------------------------------------
-		virtual int
+		virtual traits::edge_direction
 		GetDirection() const;
 
 		//------------------------------------------------------------------------------
@@ -305,8 +305,8 @@ namespace component
 	template<class id_type>
 	Edge<id_type>::Edge(const typename Edge<id_type>::vertex_type& vertex1,
 						const typename Edge<id_type>::vertex_type& vertex2,
-						int direction,
-						int inWeight) :	container_({ inVertex1, inVertex2}),
+						traits::edge_direction direction,
+						int inWeight) :	container_({ vertex1, vertex2}),
 										property_(std::make_tuple(direction,
 																  inWeight))
 	{	}
@@ -317,8 +317,8 @@ namespace component
 	//
 	//------------------------------------------------------------------------------
 	template<class id_type>
-	Edge<id_type>::Edge(Edge<id_type>&& inEdge) : container_(std::move(inEdge.container_)),
-	                                              property_(std::move(inEdge.property_))
+	Edge<id_type>::Edge(Edge<id_type>&& edge) : container_(std::move(edge.container_)),
+	                                              property_(std::move(edge.property_))
 	{	}
 
 	//------------------------------------------------------------------------------
@@ -337,10 +337,10 @@ namespace component
 	//------------------------------------------------------------------------------
 	template<class id_type>
 	Edge<id_type>&
-	Edge<id_type>::operator=(Edge<id_type>&& inEdge)
+	Edge<id_type>::operator=(Edge<id_type>&& edge)
 	{
-		container_ 	= std::move(inEdge.container_),
-		property_ 	= std::move(inEdge.property_);
+		container_ 	= std::move(edge.container_),
+		property_ 	= std::move(edge.property_);
 
 		return *this;
 	}
@@ -363,7 +363,7 @@ namespace component
 	//
 	//------------------------------------------------------------------------------
 	template<class id_type>
-	int
+	traits::edge_direction
 	Edge<id_type>::GetDirection() const
 	{
 		return std::get<0>(property_);
@@ -377,93 +377,6 @@ namespace component
 	template<class id_type>
 	int
 	Edge<id_type>::GetWeight() const
-	{
-		return std::get<1>(property_);
-	}
-	
-} //	namespace component
-
-
-//------------------------------------------------------------------------------
-//
-//  Integer Edge class implementation
-//
-//------------------------------------------------------------------------------
-namespace component
-{
-	//------------------------------------------------------------------------------
-	//
-	//  <Design related information>
-	//
-	//------------------------------------------------------------------------------
-	Edge<int>::Edge(int index1,
-					int index2,
-					int direction,
-					int inWeight) :	container_({ index1, index2}),
-									property_(std::make_tuple(direction,
-															  inWeight))
-	{	}
-
-	//------------------------------------------------------------------------------
-	//
-	//  <Design related information>
-	//
-	//------------------------------------------------------------------------------
-	Edge<int>::Edge(Edge<int>&& inEdge) : container_(std::move(inEdge.container_)),
-	                                      property_(std::move(inEdge.property_))
-	{	}
-
-	//------------------------------------------------------------------------------
-	//
-	//  <Design related information>
-	//
-	//------------------------------------------------------------------------------
-	Edge<int>::~Edge()
-	{	}
-
-	//------------------------------------------------------------------------------
-	//
-	//  <Design related information>
-	//
-	//------------------------------------------------------------------------------
-	Edge<int>&
-	Edge<int>::operator=(Edge<int>&& inEdge)
-	{
-		container_ = std::move(inEdge.container_),
-		property_ = std::move(inEdge.property_);
-
-		return *this;
-	}
-
-	//------------------------------------------------------------------------------
-	//
-	//  <Design related information>
-	//
-	//------------------------------------------------------------------------------
-	int
-	Edge<int>::GetVertex(int index) const
-	{
-		return container_.at(index);
-	}
-
-	//------------------------------------------------------------------------------
-	//
-	//  <Design related information>
-	//
-	//------------------------------------------------------------------------------
-	int
-	Edge<int>::GetDirection() const
-	{
-		return std::get<0>(property_);
-	}
-
-	//------------------------------------------------------------------------------
-	//
-	//  <Design related information>
-	//
-	//------------------------------------------------------------------------------
-	int
-	Edge<int>::GetWeight() const
 	{
 		return std::get<1>(property_);
 	}

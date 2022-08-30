@@ -22,7 +22,7 @@
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
-#include <graph-lib/implementation/adjacency-list.h>
+#include "graph-lib/implementation/adjacency-list.h"
 
 
 //------------------------------------------------------------------------------
@@ -75,6 +75,7 @@ namespace implementation
                                      list_()
     {   }
 
+    /*
     //------------------------------------------------------------------------------
     //
     //  <Design related information>
@@ -96,6 +97,7 @@ namespace implementation
             list_.at((*edge_iter)->GetVertex(0).Id()).push_back(*edge_iter);
         }
     }
+    */
 
     //------------------------------------------------------------------------------
     //
@@ -143,13 +145,13 @@ namespace implementation
 
         // erase all edges in other vertices lists
         std::for_each(list_.begin(), list_.end(),
-            [&id](auto& edgeContainerIter)
+            [&id](auto& edgeContainer)
             {
-                edgeContainerIter->erase(
+                edgeContainer.erase(
                     std::find_if(edgeContainer.begin(), edgeContainer.end(),
                     [&id](auto& edge)
                     {
-                        return edge->GetVertex(1).Id() == id;
+                        return edge.GetVertex(1) == id;
                     }));
 
             });
@@ -163,7 +165,7 @@ namespace implementation
     void
     AdjacencyList::AddEdge(int id1,
                            int id2,
-                           int direction,
+                           component::traits::edge_direction direction,
                            int weight) 
     {
         list_.at(id1).push_back(typename AdjacencyList::edge_type(id1, id2,
@@ -175,19 +177,19 @@ namespace implementation
     //  <Design related information>
     //  
     //------------------------------------------------------------------------------
-    const bool
+    bool
     AdjacencyList::Edge(int id1,
                         int id2,
-                        int direction,
+                        component::traits::edge_direction direction,
                         int weight) const
     {
         if (std::find_if(list_.at(id1).begin(), list_.at(id1).end(),
-            [&id2, &direction, &weight](auto pEdge)
+            [&id2, &direction, &weight](auto& edge)
             {
-                return ((pEdge->GetVertex(1).Id() == inId2) &&
-                        (pEdge->Direction() == direction) &&
-                        (pEdge->Weight() == weight));
-            }) != list_.at(inId1).end())
+                return ((edge.GetVertex(1) == id2) &&
+                        (edge.GetDirection() == direction) &&
+                        (edge.GetWeight() == weight));
+            }) != list_.at(id1).end())
         {
             return true;
         }
@@ -203,16 +205,16 @@ namespace implementation
     void
     AdjacencyList::RemoveEdge(int id1,
                               int id2,
-                              int direction,
+                              component::traits::edge_direction direction,
                               int weight)
     {
         list_.at(id1).erase(
             std::find_if(list_.at(id1).begin(), list_.at(id1).end(),
-            [&inId2, &direction, &weight]( auto& pEdge)
+            [&id2, &direction, &weight](auto& edge)
             { 
-                return ((pEdge->GetVertex(1).Id() == inId2) &&
-                        (pEdge->Direction() == direction) &&
-                        (pEdge->Weight() == weight));
+                return ((edge.GetVertex(1) == id2) &&
+                        (edge.GetDirection() == direction) &&
+                        (edge.GetWeight() == weight));
             }));
     }
 

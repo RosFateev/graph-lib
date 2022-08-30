@@ -25,10 +25,12 @@
 //------------------------------------------------------------------------------
 // System
 // e.g.: #include <iostream>        // stdout
+#include <list>
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
-#include <graph-lib/implementation/implementation-support.hpp>
+#include "graph-lib/component/edge.hpp"
+#include "graph-lib/implementation/implementation-support.hpp"
 
 
 
@@ -49,10 +51,10 @@
 //------------------------------------------------------------------------------
 namespace component
 {
-    template<   class int>
+    template<   class id_type>
     class Vertex;
 
-    template<   class int>
+    template<   class id_type>
     class Edge;
 }
 
@@ -77,23 +79,19 @@ namespace implementation
     //------------------------------------------------------------------------------
     class BaseImplementation
     {
-
-        using vertex_type           = component::Vertex<int>;
-        using vertex_ptr            = std::shared_ptr<vertex_type>;
         using edge_type             = component::Edge<int>;
-        using edge_ptr              = std::shared_ptr<edge_type>;
-        using edge_container        = std::list<edge_ptr>;
-        using vertex_init_container = std::vector<vertex_ptr>;
-        using edge_init_container   = std::vector<edge_ptr>;
+        using edge_container        = std::list<edge_type>;
+        //using vertex_init_container = std::vector<vertex_ptr>;
+        //using edge_init_container   = std::vector<edge_ptr>;
 
     public:
 
         //------------------------------------------------------------------------------
         /// @brief Default constructor
         //------------------------------------------------------------------------------
-        BaseImplementation()
-        {}
+        BaseImplementation();
         
+        /*
         //------------------------------------------------------------------------------
         /// @brief Value constructor
         ///
@@ -104,11 +102,12 @@ namespace implementation
         //------------------------------------------------------------------------------
         BaseImplementation(const vertex_init_container&, 
                            const edge_init_container&) {}
+        */
 
         //------------------------------------------------------------------------------
         /// @brief Virtual destructor.
         //------------------------------------------------------------------------------
-        virtual ~BaseImplementation() {};
+        virtual ~BaseImplementation();
 
         //------------------------------------------------------------------------------
         /// @brief Add vertex to implementation.
@@ -117,7 +116,7 @@ namespace implementation
         ///
         //------------------------------------------------------------------------------
         virtual void
-        AddVertex(int id) = 0;
+        AddVertex(int id);
 
         /*
         //------------------------------------------------------------------------------
@@ -130,7 +129,7 @@ namespace implementation
         ///
         //------------------------------------------------------------------------------
         virtual bool
-        GetVertex(int id) const = 0;
+        GetVertex(int id) const;
         */
 
         //------------------------------------------------------------------------------
@@ -140,7 +139,7 @@ namespace implementation
         ///
         //------------------------------------------------------------------------------
         virtual void
-        RemoveVertex(int id) = 0;
+        RemoveVertex(int id);
 
         //------------------------------------------------------------------------------
         /// @brief Add edge to implementation.
@@ -157,8 +156,8 @@ namespace implementation
         virtual void
         AddEdge(int id1,
                 int id2,
-                int direction,
-                int weight) = 0;
+                component::traits::edge_direction direction,
+                int weight);
         
         //------------------------------------------------------------------------------
         /// @brief Get edge pointer for given vertex ids.
@@ -177,8 +176,8 @@ namespace implementation
         virtual bool
         Edge(int id1,
              int id2,
-             int direction,
-             int weight) const = 0;
+             component::traits::edge_direction direction,
+             int weight) const;
 
         //------------------------------------------------------------------------------
         /// @brief Removes edge pointer with given vertex ids.
@@ -192,11 +191,11 @@ namespace implementation
         /// @param[in] weight Edge weight.
         ///
         //------------------------------------------------------------------------------
-        void
+        virtual void
         RemoveEdge(int id1,
                    int id2,
-                   int direction,
-                   int weight); = 0;
+                   component::traits::edge_direction direction,
+                   int weight);
 
         //------------------------------------------------------------------------------
         /// @brief Get neighbours of the vertex with given id.
@@ -206,8 +205,8 @@ namespace implementation
         /// @return Edges to neighbours.
         ///
         //------------------------------------------------------------------------------
-        const edge_container&
-        GetNeighbours(int id) const = 0;
+        virtual const edge_container&
+        GetNeighbours(int id) const;
 
     };
 

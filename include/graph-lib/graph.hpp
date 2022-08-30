@@ -34,7 +34,7 @@
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
-#include <graph-lib/implementation/manager.hpp>
+#include "graph-lib/implementation/manager.h"
 
 
 //------------------------------------------------------------------------------
@@ -81,8 +81,7 @@ namespace graph
         using vertex_type           = component::Vertex<id_type>;
         using vertex_structure      = std::map<vertex_type,
                                                int,
-                                               component::support::vertex_hash<id_type>
-                                               component::support::vertex_equal<id_type>>;
+                                               component::support::vertex_less<id_type>>;
         using edge_type             = component::Edge<id_type>;
         using edge_container        = std::vector<edge_type>;
         using manager_type          = implementation::Manager;
@@ -174,7 +173,7 @@ namespace graph
         void
         AddEdge(id_type id1,
                 id_type id2,
-                int direction = component::traits::edge_direction::none,
+                component::traits::edge_direction direction = component::traits::edge_direction::none,
                 int weight = 0);
 
         //------------------------------------------------------------------------------
@@ -192,7 +191,7 @@ namespace graph
         void
         AddEdge(const vertex_type& vertex1,
                 const vertex_type& vertex2,
-                int direction = component::traits::edge_direction::none,
+                component::traits::edge_direction direction = component::traits::edge_direction::none,
                 int weight = 0);
 
         //------------------------------------------------------------------------------
@@ -212,7 +211,7 @@ namespace graph
         const edge_type&
         GetEdge(id_type id1,
                 id_type id2,
-                int direction = component::traits::edge_direction::none,
+                component::traits::edge_direction direction = component::traits::edge_direction::none,
                 int weight = 0) const;
 
         //------------------------------------------------------------------------------
@@ -232,7 +231,7 @@ namespace graph
         const edge_type&
         GetEdge(const vertex_type& vertex1,
                 const vertex_type& vertex2,
-                int direction = component::traits::edge_direction::none,
+                component::traits::edge_direction direction = component::traits::edge_direction::none,
                 int weight = 0) const;
 
         //------------------------------------------------------------------------------
@@ -250,7 +249,7 @@ namespace graph
         void
         RemoveEdge(id_type id1,
                    id_type id2,
-                   int direction = component::traits::edge_direction::none,
+                   component::traits::edge_direction direction = component::traits::edge_direction::none,
                    int weight = 0);
 
         //------------------------------------------------------------------------------
@@ -268,7 +267,7 @@ namespace graph
         void
         RemoveEdge(const vertex_type& vertex1,
                    const vertex_type& vertex2,
-                   int direction = component::traits::edge_direction::none,
+                   component::traits::edge_direction direction = component::traits::edge_direction::none,
                    int weight = 0);
 
         //------------------------------------------------------------------------------
@@ -310,7 +309,15 @@ namespace graph
 
         /// @brief Internal structures manager.
         manager_type    manager_;
+
+        /// @brief invalid vertex constant
+        static const vertex_type invalidVertex_;
     };
+
+    template<class id_type>
+    const typename Graph<id_type>::vertex_type
+    Graph<id_type>::invalidVertex_ = typename Graph<id_type>::vertex_type(
+        component::traits::vertex_traits<id_type>::invalid_);
 
 } // namespace graph
 
@@ -336,6 +343,7 @@ namespace graph
     Graph<id_type>::Graph()
     {   }
 
+    /*
     //------------------------------------------------------------------------------
     //
     //  Go through initializer list filling vertexMap_ structure.
@@ -357,6 +365,7 @@ namespace graph
                 manager_.AddEdge()
             });
     }
+    */
 
     //------------------------------------------------------------------------------
     //
@@ -405,7 +414,7 @@ namespace graph
             return tpl->first;
         }
 
-        return component::traits::invalid;
+        return invalidVertex_;
     }
 
     //------------------------------------------------------------------------------
@@ -433,11 +442,11 @@ namespace graph
     void
     Graph<id_type>::AddEdge(id_type id1,
                             id_type id2,
-                            int direction,
+                            component::traits::edge_direction direction,
                             int weight)
     {
-        AddEdge(typename Graph<id_type>::vertex_type(id),
-                typename Graph<id_type>::vertex_type(id),
+        AddEdge(typename Graph<id_type>::vertex_type(id1),
+                typename Graph<id_type>::vertex_type(id2),
                 direction,
                 weight);
     }
@@ -451,7 +460,7 @@ namespace graph
     void
     Graph<id_type>::AddEdge(const typename Graph<id_type>::vertex_type& vertex1,
                             const typename Graph<id_type>::vertex_type& vertex2,
-                            int direction,
+                            component::traits::edge_direction direction,
                             int weight)
     {
         manager_.AddEdge(vertexMap_.at(vertex1),
@@ -467,7 +476,7 @@ namespace graph
     const typename Graph<id_type>::edge_type&
     Graph<id_type>::GetEdge(id_type id1,
                             id_type id2,
-                            int direction,
+                            component::traits::edge_direction direction,
                             int weight) const
     {
         return GetEdge(typename Graph<id_type>::vertex_type(id1),
@@ -484,7 +493,7 @@ namespace graph
     const typename Graph<id_type>::edge_type&
     Graph<id_type>::GetEdge(const typename Graph<id_type>::vertex_type&  vertex1,
                             const typename Graph<id_type>::vertex_type&  vertex2,
-                            int direction,
+                            component::traits::edge_direction direction,
                             int weight) const
     {
         // look for endpoints
@@ -510,7 +519,7 @@ namespace graph
     void
     Graph<id_type>::RemoveEdge(id_type id1,
                                id_type id2,
-                               int direction,
+                               component::traits::edge_direction direction,
                                int weight)
     {
         RemoveEdge(typename Graph<id_type>::vertex_type(id1),
@@ -527,7 +536,7 @@ namespace graph
     void
     Graph<id_type>::RemoveEdge(const typename Graph<id_type>::vertex_type& vertex1,
                                const typename Graph<id_type>::vertex_type& vertex2,
-                               int direction,
+                               component::traits::edge_direction direction,
                                int weight)
     {
         manager_.RemoveEdge(vertexMap_.at(vertex1),
@@ -542,7 +551,7 @@ namespace graph
     //------------------------------------------------------------------------------
     template<class id_type>
     typename Graph<id_type>::edge_container
-    Graph<id_type>::GetNeighbours(id_type id)
+    Graph<id_type>::GetNeighbours(id_type id) const
     { 
         return GetNeighbours(typename Graph<id_type>::vertex_type(id));
     }
@@ -562,7 +571,7 @@ namespace graph
         auto mNeighbours = manager_.GetNeighbours(vertexMap_.at(vertex));
 
         std::for_each(mNeighbours.begin(), mNeighbours.end(),
-            [&neighbours](const auto& intEdge)
+            [&neighbours, &vertex](const auto& intEdge)
             {
                 neighbours.push_back(
                     typename Graph<id_type>::edge_type(

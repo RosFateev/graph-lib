@@ -22,7 +22,7 @@
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
-#include <graph-lib/implementation/manager.h>
+#include "graph-lib/implementation/manager.h"
 
 
 //------------------------------------------------------------------------------
@@ -71,9 +71,13 @@ namespace implementation
     //  <Design related information>
     //
     //------------------------------------------------------------------------------
-    Manager::Manager()
-    {   }
+    Manager::Manager() : activeIndex_(0),
+                         implementations_()
+    {
+        implementations_.push_back(typename Manager::implementation_ptr(new AdjacencyList()));
+    }
 
+    /*
     //------------------------------------------------------------------------------
     //
     //  Due to edge being dependent on his endpoint vertices it is necessary to
@@ -108,6 +112,7 @@ namespace implementation
         // initialize implementations - currently Adjacency List
         implementations_.emplace_back( new AdjacencyList(vertices_, edges_));
     }
+    */
 
     //------------------------------------------------------------------------------
     //
@@ -117,10 +122,14 @@ namespace implementation
     void
     Manager::AddVertex(int id)
     {
+        // active implementation only
+        implementations_[activeIndex_]->AddVertex(id);
+        /*
         // add vertex pointer to implementation structures
         std::for_each(implementations_.begin(), implementations_.end(),
             [&id](auto& pImplementation)
             { pImplementation->AddVertex(id); });
+        */
     }
     
     //------------------------------------------------------------------------------
@@ -131,11 +140,15 @@ namespace implementation
     void
     Manager::RemoveVertex(int id)
     {
+        // active implementation only
+        implementations_[activeIndex_]->RemoveVertex(id);
+        /*
         // remove vertex from each implementation structure
         std::for_each(implementations_.begin(), implementations_.end(), 
             [&id](auto& pImplementation)
             { pImplementation->RemoveVertex(id); });
         // remove from data holder
+        */
     }
 
     //------------------------------------------------------------------------------
@@ -146,13 +159,17 @@ namespace implementation
     void
     Manager::AddEdge(int id1,
                      int id2,
-                     int direction,
+                     component::traits::edge_direction direction,
                      int weight)
     {
+        // active implementation only
+        implementations_[activeIndex_]->AddEdge(id1, id2, direction, weight);
+        /*
         // remove vertex from each implementation structure
         std::for_each(implementations_.begin(), implementations_.end(), 
             [&id1, &id2, direction, weight](auto& pImplementation)
             { pImplementation->AddEdge(id1, id2, direction, weight); });
+        */
     }
 
     //------------------------------------------------------------------------------
@@ -163,15 +180,10 @@ namespace implementation
     bool
     Manager::Edge(int id1,
                   int id2,
-                  int direction,
+                  component::traits::edge_direction direction,
                   int weight) const
     {
-        if (implementations_[activeIndex_]->Edge(id1, id2, direction, weight))
-        {
-            return true;
-        }
-
-        return false;
+        return implementations_[activeIndex_]->Edge(id1, id2, direction, weight);
     }
 
     //------------------------------------------------------------------------------
@@ -182,13 +194,17 @@ namespace implementation
     void
     Manager::RemoveEdge(int id1,
                         int id2,
-                        int direction,
+                        component::traits::edge_direction direction,
                         int weight)
     {
-        // remove vertex from each implementation
+        // active implementation only
+        implementations_[activeIndex_]->RemoveEdge(id1, id2, direction, weight);
+        /*
+        // remove edge from each implementation
         std::for_each(implementations_.begin(), implementations_.end(), 
             [&id1, &id2, &direction, &weight](auto& implementation)
             { implementation->RemoveEdge(id1, id2, direction, weight); } );
+        */
     }
 
     //------------------------------------------------------------------------------
@@ -196,8 +212,8 @@ namespace implementation
     //  <Design related information>
     //
     //------------------------------------------------------------------------------
-    typename Manager::const edge_container&
-    Manager::GetNeighbours(int id)
+    const typename Manager::edge_container&
+    Manager::GetNeighbours(int id) const
     { 
         return implementations_[activeIndex_]->GetNeighbours(id);
     }
@@ -221,9 +237,9 @@ namespace implementation
     //
     //------------------------------------------------------------------------------
     void
-    Manager::AddImplementation(  typename Manager::implementation_ptr implementation)
+    Manager::AddImplementation(  typename Manager::implementation_ptr&& implementation)
     {
-        implementations_.push_back(implementation);
+        implementations_.emplace_back(std::move(implementation));
     }
 
     //------------------------------------------------------------------------------
@@ -234,7 +250,7 @@ namespace implementation
     void
     Manager::RemoveImplementation(int index)
     {
-        implementations_.erase(index);
+        //implementations_.erase(index);
     }
 
     //------------------------------------------------------------------------------

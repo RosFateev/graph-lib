@@ -27,31 +27,13 @@
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
-#include <graph-lib/component/vertex-support.hpp>       // 
+#include "graph-lib/component/vertex-support.hpp"       // 
 
 
 //------------------------------------------------------------------------------
 // Constants
 //------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-/// @brief Contains Vertex and Edge.
-///
-/// A common namespace for graph's basic components.
-//------------------------------------------------------------------------------
-namespace component
-{
-    //------------------------------------------------------------------------------
-    /// @brief graph components' traits.
-    //------------------------------------------------------------------------------
-    namespace traits
-    {
-        /// @brief Invalid int vertex.
-        static const Vertex<int> invalid(-1);
-
-    } // namespace traits
-
-} // namespace component
+// (none)
 
 
 //------------------------------------------------------------------------------

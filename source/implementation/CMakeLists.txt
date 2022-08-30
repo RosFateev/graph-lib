@@ -6,7 +6,13 @@ set(lib_name "implementation")
 
 
 #
-add_library(${lib_name} PUBLIC
+add_library(${lib_name} STATIC
     manager.cpp
-    adjacency-list.cpp
-    incidence-matrix.cpp)
+    implementation.cpp
+    adjacency-list.cpp)
+
+
+target_link_libraries(${lib_name} PUBLIC
+    component)
+target_include_directories(${lib_name} PUBLIC
+    ${PROJECT_SOURCE_DIR}/../include)

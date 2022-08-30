@@ -32,8 +32,7 @@
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
-#include <graph-lib/implementation/adjacency-list.hpp>
-#include <graph-lib/implementation/incidence-matrix.hpp>
+#include "graph-lib/implementation/adjacency-list.h"
 
 //------------------------------------------------------------------------------
 // Global references
@@ -83,11 +82,11 @@ namespace implementation
     {
         //type aliases
         using edge_type                 = component::Edge<int>;
-        using edge_container            = std::vector<edge_type>;
+        using edge_container            = std::list<edge_type>;
         using vertex_init_type          = int;
-        using edge_init_type            = std::tuple<int, int, int>;
+        using edge_init_type            = std::tuple<int, component::traits::edge_direction, int>;
         using init_list_type            = std::tuple<vertex_init_type, std::vector<edge_init_type>>;
-        using base_implementation       = BaseImplementation<int>;
+        using base_implementation       = BaseImplementation;
         using implementation_ptr        = std::unique_ptr<base_implementation>;
         using implementation_container  = std::vector<implementation_ptr>;
 
@@ -98,6 +97,7 @@ namespace implementation
         //------------------------------------------------------------------------------
         Manager();
 
+        /*
         //------------------------------------------------------------------------------
         /// @brief Initializer list constructor.
         ///
@@ -105,6 +105,7 @@ namespace implementation
         ///
         //------------------------------------------------------------------------------
         Manager(std::initializer_list<init_list_type>&& initList);
+        */
 
         //------------------------------------------------------------------------------
         /// @brief Adds vertex with specefic id to a graph.
@@ -154,7 +155,7 @@ namespace implementation
         void
         AddEdge(int id1,
                 int id2,
-                int direction,
+                component::traits::edge_direction direction,
                 int weight);
 
         //------------------------------------------------------------------------------
@@ -175,7 +176,7 @@ namespace implementation
         bool
         Edge(int id1,
              int id2,
-             int direction,
+             component::traits::edge_direction direction,
              int weight) const;
 
         //------------------------------------------------------------------------------
@@ -193,7 +194,7 @@ namespace implementation
         void
         RemoveEdge(int id1,
                    int id2,
-                   int direction,
+                   component::traits::edge_direction direction,
                    int weight);
 
         //------------------------------------------------------------------------------
@@ -227,7 +228,7 @@ namespace implementation
         ///
         //------------------------------------------------------------------------------
         void
-        AddImplementation(implementation_ptr pImpl);
+        AddImplementation(implementation_ptr&& pImpl);
 
         //------------------------------------------------------------------------------
         /// @brief Remove implementation with a given index from a graph.

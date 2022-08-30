@@ -25,6 +25,9 @@
 //------------------------------------------------------------------------------
 // System
 // e.g.: #include <iostream>        // stdout
+#include <cstddef> 				// size_t
+#include <functional> 			// std::hash
+
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
@@ -53,10 +56,10 @@
 //------------------------------------------------------------------------------
 namespace component
 {
-	template< 	typename id_type>
+	template<class id_type>
 	class Vertex;
 
-	template< 	typename id_type>
+	template<class id_type>
 	class Edge;
 
 } // 	namespace component
@@ -90,8 +93,11 @@ namespace component
 		//------------------------------------------------------------------------------
 		template<class id_type>
 		class vertex_traits
-		{	};
+		{
+			static const id_type invalid_;
+		};
 
+		/*
 		//------------------------------------------------------------------------------
 		/// @brief Vertex traits integer specification.
 		//------------------------------------------------------------------------------
@@ -103,8 +109,39 @@ namespace component
 			//------------------------------------------------------------------------------
 			/// @brief Vertex<int> invalid value.
 			//------------------------------------------------------------------------------
-			static int invalid_ = -1;
+			static const int invalid_;
 		};
+
+		//------------------------------------------------------------------------------
+		/// @brief Vertex traits float specification.
+		//------------------------------------------------------------------------------
+		template<>
+		class vertex_traits<float>
+		{
+		public:
+
+			//------------------------------------------------------------------------------
+			/// @brief Vertex<int> invalid value.
+			//------------------------------------------------------------------------------
+			static const float invalid_;
+		};
+
+		
+
+		//------------------------------------------------------------------------------
+		/// @brief Vertex traits string specification.
+		//------------------------------------------------------------------------------
+		template<>
+		class vertex_traits<std::string>
+		{
+		public:
+
+			//------------------------------------------------------------------------------
+			/// @brief Vertex<int> invalid value.
+			//------------------------------------------------------------------------------
+			static const std::string invalid_;
+		};
+		*/
 
 	} // namespace traits
 

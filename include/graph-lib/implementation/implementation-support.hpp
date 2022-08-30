@@ -6,8 +6,8 @@
 
 
 //user 
-#include "graph-component/vertex-support.hpp"
-#include "graph-component/edge-support.hpp"
+#include "graph-lib/component/vertex-support.hpp"
+#include "graph-lib/component/edge-support.hpp"
 
 
 
@@ -128,76 +128,5 @@ namespace implementation
 
 } //	namespace implementation
 */
-
-
-
-
-//! graph
-/*!
- * namespace containing graph's definition. 
-*/
-namespace graph
-{
-	//! support
-	/*!
-	 * namespace containing graph's support structures. 
-	*/
-	namespace support
-	{
-		//! graph_ptr_hash
-		/*!
-		 * Class implementing Graph* hash. Enables Graph* as a key in std::map.
-		*/	
-		template< typename id_type>
-		class graph_ptr_hash
-		{
-			using graph_ptr_type = Graph<id_type>*;
-
-		public:
-
-			//! operator()
-			/*!
-			 * Computes hash from Graph*.
-			   \param const graph_ptr_type&
-			   \return Graph* hash
-			*/
-			size_t operator()(    const graph_ptr_type& inGraph) const
-			{
-				return std::hash<graph_ptr_type>()(inGraph);
-			}
-
-		};
-
-		//! graph_ptr_equal
-		/*!
-		 * Class implementing Graph* equality comparison. Enables Graph* as a key in std::map.
-		*/
-		template< typename id_type>
-		class graph_ptr_equal
-		{
-			using graph_ptr_type = Graph<id_type>*;
-
-		public:
-
-			//! operator()
-			/*!
-			 * Compares two Graph*.
-			  \param const Graph* first pointer
-			  \param const Graph* second pointer
-			  \return comparison result
-			*/
-			bool operator()(	const graph_ptr_type lhs,
-								const graph_ptr_type rhs) const
-			{
-				return (lhs == rhs);
-			}
-
-		};
-
-	} //	namespace support
-
-} //	namespace graph
-
-
 
 #endif //	GRAPH_IMPLEMENTATION_IMPLEMENTATION_SUPPORT_H
