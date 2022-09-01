@@ -1,40 +1,82 @@
-#ifndef GRAPH_DISPLAY_OUTPUTTER
-#define GRAPH_DISPLAY_OUTPUTTER
+//==============================================================================
+///
+/// @file outputter.hpp
+///
+/// @brief <description>
+///
+/// <Detailed description>
+///
+/// The documentation is available on the following website:
+/// <website>
+///
+/// Support email: <email>
+///
+//==============================================================================
+
+//==============================================================================
+// Include only once
+//
+#ifndef GRAPH_LIB_DISPLAY_OUTPUTTER_HPP
+#define GRAPH_LIB_DISPLAY_OUTPUTTER_HPP
 
 
+//------------------------------------------------------------------------------
+// Include files
+//------------------------------------------------------------------------------
+// System
+// e.g.: #include <iostream>        // stdout
+
+// Project
+// e.g.: #include "IncludeFile.h"   // MyType_t
 
 
-
-// related
-#include "graph-display/manager/outputter-manager.hpp"      // outputter implementation
-
-
-
+//------------------------------------------------------------------------------
+// Global references
+//------------------------------------------------------------------------------
+// (none)
 
 
+//------------------------------------------------------------------------------
+// Constants
+//------------------------------------------------------------------------------
+// (none)
+
+
+//------------------------------------------------------------------------------
+// Macros
+//------------------------------------------------------------------------------
+// (none)
+
+
+//------------------------------------------------------------------------------
 // Forward declarations
+//------------------------------------------------------------------------------
+// (none)
+
 namespace graph
 {
-    template<   typename    id_type>
+    template<class id_type,
+             typename implementation_type>
     class Graph;
+
 } //    namespace graph
 
 
+//------------------------------------------------------------------------------
+// Data types
+//------------------------------------------------------------------------------
 
-
-
-
-//! output
-/*!
- * Namespace containing all structures used to display graph.
- */
+//------------------------------------------------------------------------------
+/// @brief namespace containing all structures used to display graph.
+//------------------------------------------------------------------------------
 namespace output
 {
-    //! Outputter
-    /*!
-     * Displays graphs.
-     */
-    template< typename id_type>
+    //------------------------------------------------------------------------------
+    /// @brief Outputter
+    ///
+    /// Displays graphs.
+    //------------------------------------------------------------------------------
+    template<class id_type>
     class Outputter
     {
 
@@ -43,74 +85,90 @@ namespace output
 
     public:
 
-        //! Default constructor
-        /*!
-         * Construct an empty Outputter instance.
-         */
-                        Outputter();
+        //------------------------------------------------------------------------------
+        /// @brief Default constructor.
+        //------------------------------------------------------------------------------
+        Outputter();
 
-        //! operator <<
-        /*!
-         * Registers graph instance, so that it can be drawn on screen.
-            \param const graph_type&
-            \return Outputter&
-         */
-        Outputter&      operator<<(const graph_type&);
+        //------------------------------------------------------------------------------
+        /// @brief Registers graph instance.
+        ///
+        /// @param[in] graph Graph to display.
+        ///
+        /// @return Reference to this object.
+        ///
+        //------------------------------------------------------------------------------
+        Outputter&
+        operator<<(const graph_type& graph);
 
-        //! operator <<
-        /*!
-         * Displays on screen all registered graph instances.
-         */
-        void            Show();
+        //------------------------------------------------------------------------------
+        /// @brief Displays on screen all registered graph instances.
+        //------------------------------------------------------------------------------
+        void
+        Show();
 
 
 
     private:
 
-        //! manager
-        /*!
-         * Component implementing Outputters functionality.
-         */
+        //------------------------------------------------------------------------------
+        /// manager
+        ///
+        ///Component implementing Outputters functionality.
+        //------------------------------------------------------------------------------
         manager_type   manager_;
     };
 
 } //    namespace output
 
 
+//------------------------------------------------------------------------------
+// Variable definitions
+//------------------------------------------------------------------------------
+// (none)
 
 
+//------------------------------------------------------------------------------
+// Function definitions
+//------------------------------------------------------------------------------
 
-
-
-
-
-
-//
-// Definition
-//
 namespace output
 {
+    //------------------------------------------------------------------------------
     //
-    template< typename id_type>
-    Outputter<id_type>::Outputter() : manager_()
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------
+    template<class id_type>
+    Outputter<id_type>::Outputter()
     {   }
 
 
 
+    //------------------------------------------------------------------------------
     //
-    template<   typename    id_type>
-    Outputter<id_type>&      Outputter<id_type>::operator<<(const typename Outputter<id_type>::graph_type& inGraph)
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------
+    template<class id_type>
+    Outputter<id_type>&
+    Outputter<id_type>::operator<<(const typename Outputter<id_type>::graph_type& graph)
     {
-        manager_.Register(inGraph);
+        manager_.Register(graph);
 
         return *this;
     }
 
 
 
+    //------------------------------------------------------------------------------
     //
-    template< typename id_type>
-    void    Outputter<id_type>::Show()
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------
+    template<class id_type>
+    void
+    Outputter<id_type>::Show()
     {
         manager_.Display();
     }
@@ -119,4 +177,8 @@ namespace output
 
 
 
-#endif //GRAPH_DISPLAY_OUTPUTTER
+#endif // GRAPH_LIB_DISPLAY_OUTPUTTER_HPP
+//==============================================================================
+// End of outputter.hpp
+// (note: the newline at the end of the file is intentional)
+//==============================================================================

@@ -51,13 +51,6 @@
 //------------------------------------------------------------------------------
 // Forward declarations
 //------------------------------------------------------------------------------
-namespace implementation
-{
-	class AdjacencyList;
-	class IncidenceMatrix;
-
-} // namespace implementation
-
 namespace component
 {
 	template< 	typename 	id_type>
@@ -67,6 +60,13 @@ namespace component
 	class Edge;
 
 } // namespace component
+
+namespace implementation
+{
+	template<class id_type>
+	class AdjacencyList;
+
+} // namespace implementation
 
 
 //------------------------------------------------------------------------------

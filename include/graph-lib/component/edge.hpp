@@ -79,7 +79,7 @@ namespace component
 	class Edge
 	{		
 		using vertex_type 			= Vertex<id_type>;
-		using vertex_container 		= std::array<const vertex_type, 2>;
+		using vertex_container 		= std::array<vertex_type, 2>;
 		using connection_property	= std::tuple<traits::edge_direction, int>;
 
 	public:
@@ -101,11 +101,12 @@ namespace component
 			 int weight = 0);
 
 		//------------------------------------------------------------------------------
-		/// @brief Move constructor.
+		/// @brief Copy constructor.
 		///
-		/// @param[in] edge Edge to move to.
+		/// @param[in] edge Edge to copy.
+		///
 		//------------------------------------------------------------------------------
-		Edge(Edge&& edge);
+		Edge(const Edge& edge);
 
 		//------------------------------------------------------------------------------
 		/// @brief Virtual destructor.
@@ -113,15 +114,15 @@ namespace component
 		virtual ~Edge();
 
 		//------------------------------------------------------------------------------
-		/// @brief Move assignment operator.
+		/// @brief Copy assignment operator.
 		///
-		/// @param[in] edge Edge to move to.
+		/// @param[in] edge Edge to copy.
 		///
 		/// @return Reference to itself.
 		///
 		//------------------------------------------------------------------------------
-		Edge&
-		operator=(Edge&& edge);
+		const Edge&
+		operator=(const Edge& edge);
 
 		//------------------------------------------------------------------------------
 		/// @brief Get edge's vertex with specific index.
@@ -171,114 +172,6 @@ namespace component
 } //	namespace component
 
 
-//------------------------------------------------------------------------------
-/// @brief Contains Vertex and Edge.
-///
-/// A common namespace for graph's basic components.
-//------------------------------------------------------------------------------
-namespace component
-{
-	//------------------------------------------------------------------------------
-	/// @brief Edge int type specification.
-	///
-	/// Edge<int> is a simplified edge type used in graph implementations.
-	/// References to vertices replaced by int indexes.
-	///
-	//------------------------------------------------------------------------------
-	template<>
-	class Edge<int>
-	{
-		using vertex_container 		= std::array<int, 2>;
-		using connection_property	= std::tuple<traits::edge_direction, int>;
-
-	public:
-
-		//------------------------------------------------------------------------------
-		/// @brief Value constructor.
-		///
-		/// @param[in] index1 Index of first vertex in implementation structure.
-		///
-		/// @param[in] index2 Index of second vertex in implementation structure.
-		///
-        /// @param[in] direction How vertices are connected.
-        ///
-        /// @param[in] weight Edge weight.
-		//------------------------------------------------------------------------------
-		Edge(int index1, 
-			 int index2,
-			 traits::edge_direction direction = traits::edge_direction::none, 
-			 int weight = 0);
-
-		//------------------------------------------------------------------------------
-		/// @brief Move constructor.
-		///
-		/// @param[in] edge Edge to move to.
-		//------------------------------------------------------------------------------
-		Edge(Edge&& edge);
-
-		//------------------------------------------------------------------------------
-		/// @brief Virtual destructor.
-		//------------------------------------------------------------------------------
-		virtual ~Edge();
-
-		//------------------------------------------------------------------------------
-		/// @brief Move assignment operator.
-		///
-		/// @param[in] edge Edge to move to.
-		///
-		/// @return Reference to itself.
-		///
-		//------------------------------------------------------------------------------
-		Edge&
-		operator=(Edge&& edge);
-
-		//------------------------------------------------------------------------------
-		/// @brief Get edge's vertex with specific index.
-		///
-		/// @param[in] index Vertex position.
-		///
-		/// @return Desired vertex index.
-		///
-		//------------------------------------------------------------------------------
-		int
-		GetVertex(int index) const;
-
-		//------------------------------------------------------------------------------
-		/// @brief Get edge direction.
-		///
-		/// @return Direction type.
-		///
-		//------------------------------------------------------------------------------
-		virtual traits::edge_direction
-		GetDirection() const;
-
-		//------------------------------------------------------------------------------
-		/// @brief Get edge weight.
-		///
-		/// @return Edge weight.
-		///
-		//------------------------------------------------------------------------------
-		virtual int
-		GetWeight() const;
-
-
-	private:
-
-		//------------------------------------------------------------------------------
-		/// @brief Vertex container.
-		//------------------------------------------------------------------------------
-		vertex_container container_;
-		
-		//------------------------------------------------------------------------------
-		/// @brief Connection property.
-		///
-		/// (direction, weight) tuple describing connection between endpoints
-		//------------------------------------------------------------------------------
-		connection_property	property_;
-	};
-	
-} //	namespace component
-
 
 //------------------------------------------------------------------------------
 // Variable definitions
@@ -317,8 +210,8 @@ namespace component
 	//
 	//------------------------------------------------------------------------------
 	template<class id_type>
-	Edge<id_type>::Edge(Edge<id_type>&& edge) : container_(std::move(edge.container_)),
-	                                              property_(std::move(edge.property_))
+	Edge<id_type>::Edge(const Edge<id_type>& edge) : container_(edge.container_),
+	                                              	 property_(edge.property_)
 	{	}
 
 	//------------------------------------------------------------------------------
@@ -336,11 +229,11 @@ namespace component
 	//
 	//------------------------------------------------------------------------------
 	template<class id_type>
-	Edge<id_type>&
-	Edge<id_type>::operator=(Edge<id_type>&& edge)
+	const Edge<id_type>&
+	Edge<id_type>::operator=(const Edge<id_type>& edge)
 	{
-		container_ 	= std::move(edge.container_),
-		property_ 	= std::move(edge.property_);
+		container_ 	= edge.container_,
+		property_ 	= edge.property_;
 
 		return *this;
 	}

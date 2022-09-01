@@ -38,6 +38,9 @@
 // (none)
 
 template<>
+const char component::traits::vertex_traits<char>::invalid_ = ' ';
+
+template<>
 const int component::traits::vertex_traits<int>::invalid_ = -1;
 
 template<>

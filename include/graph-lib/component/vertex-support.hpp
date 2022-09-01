@@ -66,8 +66,8 @@ namespace component
 
 namespace implementation
 {
+	template<class id_type>
 	class AdjacencyList;
-	class IncidenceMatrix;
 
 } //	namespace implementation
 
@@ -94,6 +94,8 @@ namespace component
 		template<class id_type>
 		class vertex_traits
 		{
+		public:
+			
 			static const id_type invalid_;
 		};
 

@@ -6,10 +6,7 @@ set(lib_name "implementation")
 
 
 #
-add_library(${lib_name} STATIC
-    manager.cpp
-    implementation.cpp
-    adjacency-list.cpp)
+add_library(${lib_name} STATIC)
 
 
 target_link_libraries(${lib_name} PUBLIC
