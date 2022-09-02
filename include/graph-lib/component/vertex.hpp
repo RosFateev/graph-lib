@@ -72,6 +72,13 @@ namespace component
 
         //------------------------------------------------------------------------------
         ///
+        /// @brief Default constructor.
+        ///
+        //------------------------------------------------------------------------------
+        Vertex();
+
+        //------------------------------------------------------------------------------
+        ///
         /// @brief Value constructor.
         ///
         /// @param[in] id Input vertex id.
@@ -90,15 +97,6 @@ namespace component
 
         //------------------------------------------------------------------------------
         ///
-        /// @brief Move constructor.
-        ///
-        /// @param[in] vertex Input prototype vertex.
-        ///
-        //------------------------------------------------------------------------------
-        Vertex(Vertex&& vertex);
-
-        //------------------------------------------------------------------------------
-        ///
         /// @brief Copy assignment operator.
         ///
         /// @param[in] vertex Input prototype vertex.
@@ -108,18 +106,6 @@ namespace component
         //------------------------------------------------------------------------------
         const Vertex&
         operator=(const Vertex& vertex);
-
-        //------------------------------------------------------------------------------
-        ///
-        /// @brief Move assignment operator.
-        ///
-        /// @param[in] vertex Input prototype vertex.
-        ///
-        /// @return Reference to itself.
-        ///
-        //------------------------------------------------------------------------------
-        Vertex&
-        operator=(Vertex&& vertex);
 
         //------------------------------------------------------------------------------
         ///
@@ -170,6 +156,11 @@ namespace component
         Coordinate(int) const;
 
 
+    public:
+
+        /// @brief Invalid vertex constant.
+        static const Vertex<id_type> invalidInstance_;
+
     private:
         
         /// @brief Vertex id.
@@ -197,6 +188,17 @@ namespace component
 {
     //------------------------------------------------------------------------------
     //
+    //  Default constructor
+    //
+    //------------------------------------------------------------------------------
+    template<class id_type>
+    Vertex<id_type>::Vertex() : id_(traits::vertex_traits<id_type>::invalid_),
+                                x_(0.f),
+                                y_(0.f)
+    {   }
+
+    //------------------------------------------------------------------------------
+    //
     //  Value constructor
     //
     //------------------------------------------------------------------------------
@@ -219,17 +221,6 @@ namespace component
 
     //------------------------------------------------------------------------------
     //
-    //  Move constructor
-    //
-    //------------------------------------------------------------------------------
-    template<class id_type>
-    Vertex<id_type>::Vertex(Vertex<id_type>&& vertex) : id_(std::move(vertex.id_)),
-                                                        x_(vertex.x_),
-                                                        y_(vertex.y_)
-    {   }
-
-    //------------------------------------------------------------------------------
-    //
     //  Copy assignment operator
     //
     //------------------------------------------------------------------------------
@@ -240,20 +231,6 @@ namespace component
         id_ = vertex.id_;
         x_ = vertex.x_;
         y_ = vertex.y_;
-
-        return *this;
-    }
-
-    //------------------------------------------------------------------------------
-    //
-    //  Move assignment operator
-    //
-    //------------------------------------------------------------------------------
-    template<class id_type>
-    Vertex<id_type>&
-    Vertex<id_type>::operator=(Vertex<id_type>&& vertex)
-    {
-        id_ = std::move(vertex.id_);
 
         return *this;
     }

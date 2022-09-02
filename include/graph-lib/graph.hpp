@@ -26,10 +26,10 @@
 // System
 // e.g.: #include <iostream>        // stdout
 #include <initializer_list>
-#include <utility>              // std::move
 #include <vector>
 #include <tuple>
 #include <algorithm>            // std::for_each
+#include <stdexcept>            // std::out_of_range
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
@@ -87,6 +87,7 @@ namespace graph
         using edge_init_type        = std::tuple<id_type, int, int>;
         using init_list_type        = std::tuple<vertex_init_type, std::vector<edge_init_type>>;
         // allows iterator access
+        using iterator              = typename implementation_type::iterator;
         using const_iterator        = typename implementation_type::const_iterator;
 
     public:
@@ -146,6 +147,23 @@ namespace graph
         //------------------------------------------------------------------------------
         const vertex_type&
         GetVertex(id_type id) const;
+
+        //------------------------------------------------------------------------------
+        /// @brief Update vertex coordinates.
+        ///
+        /// @param[in] id Vertex id.
+        ///
+        /// @param[in] x Vertex x-coordinate.
+        ///
+        /// @param[in] y Vertex y-coordinate.
+        ///
+        /// @return Vertex.
+        ///
+        //------------------------------------------------------------------------------
+        void
+        UpdateVertex(id_type id,
+                     float x,
+                     float y);
 
         //------------------------------------------------------------------------------
         /// @brief Removes vertex with id from a graph.
@@ -293,11 +311,29 @@ namespace graph
         //------------------------------------------------------------------------------
         /// @brief Get iterator to the beginning of vertex map structure.
         ///
+        /// @return implementation begin() iterator.
+        ///
+        //------------------------------------------------------------------------------        
+        iterator
+        begin();
+
+        //------------------------------------------------------------------------------
+        /// @brief Get iterator to the beginning of vertex map structure.
+        ///
         /// @return implementation cbegin() iterator.
         ///
         //------------------------------------------------------------------------------        
         const_iterator
         cbegin() const;
+
+        //------------------------------------------------------------------------------
+        /// @brief Get iterator to the end of vertex map structure.
+        ///
+        /// @return implementation end() iterator.
+        ///
+        //------------------------------------------------------------------------------        
+        iterator
+        end();
 
         //------------------------------------------------------------------------------
         /// @brief Get iterator to the end of vertex map structure.
@@ -318,11 +354,42 @@ namespace graph
         Size() const;
 
 
+    private:
+
+        //------------------------------------------------------------------------------
+        /// @brief Determine if vertex is valid and present in a graph.
+        ///
+        /// @param[in] vertex Input vertex.
+        ///
+        /// @retval True if vertex id != invalid value.
+        /// @retval False otherwise.
+        ///
+        //------------------------------------------------------------------------------
+        bool
+        IsValidVertex(const vertex_type& vertex) const;
+
+        //------------------------------------------------------------------------------
+        /// @brief Determine if edge is valid and present in a graph.
+        ///
+        /// @param[in] edge Input edge.
+        ///
+        /// @retval True if edge id != invalid value.
+        /// @retval False otherwise.
+        ///
+        //------------------------------------------------------------------------------
+        bool
+        IsValidEdge(const edge_type& edge) const;
+
+
     public:
 
-        /// @brief invalid vertex constant
-        static const vertex_type invalidVertex_;
+        /*
+        /// @brief invalid vertex constant.
+        static const vertex_type& invalidVertex_;
 
+        /// @brief invalid edge constant.
+        static const edge_type& invalidEdge_;
+        */
 
     private:
 
@@ -330,12 +397,19 @@ namespace graph
         implementation_type implementation_;
     };
 
-    // initialize invalid vertex
+    /*
+    // initialize graph invalid vertex
     template<class id_type,
              typename implementation_type>
-    const typename Graph<id_type, implementation_type>::vertex_type
-    Graph<id_type, implementation_type>::invalidVertex_ = typename Graph<id_type, implementation_type>::vertex_type(
-        component::traits::vertex_traits<id_type>::invalid_);
+    const typename Graph<id_type, implementation_type>::vertex_type&
+    Graph<id_type, implementation_type>::invalidVertex_ = implementation_type::invalidVertex_;
+
+    // initialize graph invalid vertex
+    template<class id_type,
+             typename implementation_type>
+    const typename Graph<id_type, implementation_type>::edge_type&
+    Graph<id_type, implementation_type>::invalidEdge_ = implementation_type::invalidEdge_;
+    */
 
 } // namespace graph
 
@@ -429,6 +503,21 @@ namespace graph
 
     //------------------------------------------------------------------------------
     //
+    //  <Design related information>
+    //  
+    //------------------------------------------------------------------------------
+    template<class id_type,
+             typename implementation_type>
+    void
+    Graph<id_type, implementation_type>::UpdateVertex(id_type id,
+                                                      float x,
+                                                      float y)
+    {
+        implementation_.UpdateVertex(id, x, y);
+    }
+
+    //------------------------------------------------------------------------------
+    //
     //  Mark as invalid in map structure and remove from implementation.
     //
     //------------------------------------------------------------------------------
@@ -453,8 +542,8 @@ namespace graph
                                                  component::traits::edge_direction direction,
                                                  int weight)
     {
-        AddEdge(typename Graph<id_type, implementation_type>::vertex_type(id1),
-                typename Graph<id_type, implementation_type>::vertex_type(id2),
+        AddEdge(GetVertex(id1),
+                GetVertex(id2),
                 direction,
                 weight);
     }
@@ -574,11 +663,23 @@ namespace graph
     }
 
     //------------------------------------------------------------------------------
-    /// @brief Get iterator to the beginning of vertex map structure.
-    ///
-    /// @return std::map begin() iterator.
-    ///
-    //------------------------------------------------------------------------------        
+    //
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------
+    template<class id_type,
+             typename implementation_type>
+    typename Graph<id_type, implementation_type>::iterator
+    Graph<id_type, implementation_type>::begin()
+    {
+        return implementation_.begin();
+    }
+
+    //------------------------------------------------------------------------------
+    //
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------    
     template<class id_type,
              typename implementation_type>
     typename Graph<id_type, implementation_type>::const_iterator
@@ -588,11 +689,23 @@ namespace graph
     }
 
     //------------------------------------------------------------------------------
-    /// @brief Get iterator to the end of vertex map structure.
-    ///
-    /// @return std::map end() iterator.
-    ///
-    //------------------------------------------------------------------------------        
+    //
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------      
+    template<class id_type,
+             typename implementation_type>
+    typename Graph<id_type, implementation_type>::iterator
+    Graph<id_type, implementation_type>::end()
+    {
+        return implementation_.end();
+    }
+
+    //------------------------------------------------------------------------------
+    //
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------      
     template<class id_type,
              typename implementation_type>
     typename Graph<id_type, implementation_type>::const_iterator
@@ -612,6 +725,34 @@ namespace graph
     Graph<id_type, implementation_type>::Size() const
     {
         return implementation_.Size();
+    }
+
+    //------------------------------------------------------------------------------
+    //
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------
+    template<class id_type,
+             typename implementation_type>
+    bool
+    Graph<id_type, implementation_type>::IsValidVertex(
+            const typename Graph<id_type, implementation_type>::vertex_type& vertex) const
+    {
+        return (vertex.Id() == component::traits::vertex_traits<id_type>::invalid_ ? false : true);
+    }
+
+    //------------------------------------------------------------------------------
+    //
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------
+    template<class id_type,
+             typename implementation_type>
+    bool
+    Graph<id_type, implementation_type>::IsValidEdge(
+            const typename Graph<id_type, implementation_type>::edge_type& edge) const
+    {
+        return IsValidVertex(edge.GetVertex(0));
     }
 
 

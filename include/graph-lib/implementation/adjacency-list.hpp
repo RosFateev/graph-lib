@@ -87,6 +87,7 @@ namespace implementation
 
     public:
 
+        using iterator              = typename map_type::iterator;
         using const_iterator        = typename map_type::const_iterator;
 
     public:
@@ -123,11 +124,28 @@ namespace implementation
         ///
         /// @param[in] id Vertex id.
         ///
-        /// @return Vertex.
+        /// @return Desired vertex (or invalid vertex constant).
         ///
         //------------------------------------------------------------------------------
         const vertex_type&
         GetVertex(id_type id) const;
+
+        //------------------------------------------------------------------------------
+        /// @brief Update vertex coordinates.
+        ///
+        /// @param[in] id Vertex id.
+        ///
+        /// @param[in] x Vertex x-coordinate.
+        ///
+        /// @param[in] y Vertex y-coordinate.
+        ///
+        /// @return Vertex.
+        ///
+        //------------------------------------------------------------------------------
+        void
+        UpdateVertex(id_type id,
+                     float x,
+                     float y);
 
         //------------------------------------------------------------------------------
         /// @brief Removes vertex from adjacency list.
@@ -157,7 +175,7 @@ namespace implementation
                 int weight);
         
         //------------------------------------------------------------------------------
-        /// @brief Get edge pointer for given vertices.
+        /// @brief Get edge for given vertices, direction and weight.
         ///
         /// @param[in] vertex1 First vertex.
         ///
@@ -167,7 +185,7 @@ namespace implementation
         ///
         /// @param[in] weight Edge weight.
         ///
-        /// @return Pointer to desired edge.
+        /// @return Desired edge (or invalid edge constant).
         ///
         //------------------------------------------------------------------------------
         const edge_type&
@@ -177,7 +195,7 @@ namespace implementation
                 int weight) const;
 
         //------------------------------------------------------------------------------
-        /// @brief Removes edge pointer with given vertices.
+        /// @brief Removes edge with given vertices, direction and weight.
         ///
         /// @param[in] vertex1 First vertex.
         ///
@@ -208,11 +226,29 @@ namespace implementation
         //------------------------------------------------------------------------------
         /// @brief Get iterator to the beginning of vertex map structure.
         ///
+        /// @return map_type begin() iterator.
+        ///
+        //------------------------------------------------------------------------------        
+        iterator
+        begin();
+
+        //------------------------------------------------------------------------------
+        /// @brief Get iterator to the beginning of vertex map structure.
+        ///
         /// @return map_type cbegin() iterator.
         ///
         //------------------------------------------------------------------------------        
         const_iterator
         cbegin() const;
+
+        //------------------------------------------------------------------------------
+        /// @brief Get iterator to the end of vertex map structure.
+        ///
+        /// @return map_type cend() iterator.
+        ///
+        //------------------------------------------------------------------------------        
+        iterator
+        end();
 
         //------------------------------------------------------------------------------
         /// @brief Get iterator to the end of vertex map structure.
@@ -235,10 +271,73 @@ namespace implementation
 
     private:
 
+        //------------------------------------------------------------------------------
+        /// @brief Removes edge with given vertices.
+        ///
+        /// Most general method - searches for any edge.
+        ///
+        /// @param[in] vertex1 First vertex.
+        ///
+        /// @param[in] vertex2 Second vertex.
+        ///
+        //------------------------------------------------------------------------------
+        void
+        RemoveEdge(const vertex_type& vertex1,
+                   const vertex_type& vertex2);
+
+        //------------------------------------------------------------------------------
+        /// @brief Finds iterator of adjacency list structure for given vertex.
+        ///
+        /// @param[in] vertex Input vertex.
+        ///
+        /// @return Adjacency list <vertex, edge_list> iterator
+        ///
+        //------------------------------------------------------------------------------
+        typename map_type::iterator
+        GetStructureIterator(const vertex_type& vertex);
+
+        //------------------------------------------------------------------------------
+        /// @brief Finds const iterator of adjacency list structure for given vertex.
+        ///
+        /// @param[in] vertex Input vertex.
+        ///
+        /// @return Adjacency list <vertex, edge_list> const iterator
+        ///
+        //------------------------------------------------------------------------------
+        typename map_type::const_iterator
+        GetStructureIterator(const vertex_type& vertex) const;
+
+
+    public:
+
+        /*
+        /// @brief invalid vertex constant.
+        static const vertex_type invalidVertex_;
+
+        /// @brief invalid edge constant.
+        static const edge_type invalidEdge_;
+        */
+
+    private:
+
         /// @brief Adjacency list container.
         map_type list_;
-
     };
+
+    /*
+    // initialize invalid vertex
+    template<class id_type>
+    const typename AdjacencyList<id_type>::vertex_type
+    AdjacencyList<id_type>::invalidVertex_ = typename AdjacencyList<id_type>::vertex_type(
+        component::traits::vertex_traits<id_type>::invalid_);
+
+    // initialize invalid edge
+    template<class id_type>
+    const typename AdjacencyList<id_type>::edge_type
+    AdjacencyList<id_type>::invalidEdge_ = typename AdjacencyList<id_type>::edge_type(
+        AdjacencyList<id_type>::invalidVertex_,
+        AdjacencyList<id_type>::invalidVertex_);
+    */
 
 } // namespace implementation
 
@@ -324,11 +423,36 @@ namespace implementation
     AdjacencyList<id_type>::GetVertex(id_type id) const
     {
         //DEBUG
-        std::cout << "AdjacencyList<id_type>::GetVertex(id_type):" << '\n';
+        std::cout << "AdjacencyList<id_type>::GetVertex( " << id << "):" << '\n';
         //DEBUG
-
-        return list_.find(
+        return GetStructureIterator(
             typename AdjacencyList<id_type>::vertex_type(id))->first;
+    }
+
+    //------------------------------------------------------------------------------
+    //
+    //  <Design related information>
+    //  
+    //------------------------------------------------------------------------------
+    template<class id_type>
+    void
+    AdjacencyList<id_type>::UpdateVertex(id_type id,
+                                         float x,
+                                         float y)
+    {
+        // get specific node handle
+        auto nodeHandle = list_.extract(typename AdjacencyList<id_type>::vertex_type(id));
+
+        // check if found
+        if (!nodeHandle.empty())
+        {
+            // change coordinate
+            nodeHandle.key().Coordinate(x, y);
+
+            // push back to list
+            list_.insert(std::move(nodeHandle));
+        }
+        
     }
 
     //------------------------------------------------------------------------------
@@ -342,16 +466,30 @@ namespace implementation
         const typename AdjacencyList<id_type>::vertex_type& vertex)
     {
         //DEBUG
-        std::cout << "AdjacencyList<id_type>::RemoveVertex(id_type):" << '\n';
-        std::cout << "Removing vertex with id - " << vertex.Id() << '\n';
+        std::cout << "AdjacencyList<id_type>::RemoveVertex( " << vertex.Id() << "):" << '\n';
         //DEBUG
 
-        list_.erase(list_.find(vertex));
+        // erase all edges which contain this vertex
+        // iterate over <vertex, edge_list> pairs
+        std::for_each(list_.begin(), list_.end(),
+            [&vertex, this](auto& tuple)
+            {
+                // use private method to remove (u, vertex) edges
+                RemoveEdge(tuple.first, vertex);
+            });
+
+        // erase vertex and its adjacency list
+        auto candidate = list_.find(vertex);
+
+        if (candidate != list_.end())
+        {
+            list_.erase(candidate);
+        }
     }
 
     //------------------------------------------------------------------------------
     //
-    //  <Design related information>
+    //  IMPORTANT: Add control to avoid insert when edge exists
     //  
     //------------------------------------------------------------------------------
     template<class id_type>
@@ -363,7 +501,7 @@ namespace implementation
             int weight)
     {
         //DEBUG
-        std::cout << "AdjacencyList<id_type>::AddEdge(vertex_type,...):" << '\n';
+        std::cout << "AdjacencyList<id_type>::AddEdge( " << vertex1.Id() << ", " << vertex2.Id() << "):" << '\n';
         //DEBUG
 
         list_.at(vertex1).push_back(
@@ -397,16 +535,52 @@ namespace implementation
             int weight) const
     {
         //DEBUG
-        std::cout << "AdjacencyList<id_type>::GetEdge(vertex_type,...):" << '\n';
+        std::cout << "AdjacencyList<id_type>::GetEdge( " << vertex1.Id() << ", " << vertex2.Id()
+                << ", direction, " << weight << "):" << '\n';
         //DEBUG
 
-        return std::find_if(list_.at(vertex1).begin(), list_.at(vertex1).end(),
+        auto candidate = std::find_if(list_.at(vertex1).begin(), list_.at(vertex1).end(),
             [&vertex2, &direction, &weight](const auto& edge)
             {
                 return ((edge.GetVertex(1) == vertex2) &&
                         (edge.GetDirection() == direction) &&
                         (edge.GetWeight() == weight));
             });
+
+        if (candidate != list_.at(vertex1).end())
+        {
+            return *candidate;
+        }
+
+        throw std::out_of_range("Graph contains no such edge");
+    }
+
+    //------------------------------------------------------------------------------
+    //
+    //  Private method used in RemoveVertex(v) to eliminate all (u, v) edges
+    //  
+    //------------------------------------------------------------------------------
+    template<class id_type>
+    void
+    AdjacencyList<id_type>::RemoveEdge(
+            const typename AdjacencyList<id_type>::vertex_type& vertex1,
+            const typename AdjacencyList<id_type>::vertex_type& vertex2)
+    {
+        //DEBUG
+        std::cout << "Private AdjacencyList<id_type>::RemoveEdge( " << vertex1.Id() << ", " << vertex2.Id() << "):" << '\n';
+        //DEBUG
+
+        // find edge - manual because GetEdge returns edge reference, not iterator that is needed to erase
+        auto candidate = std::find_if(list_.at(vertex1).begin(), list_.at(vertex1).end(),
+            [&vertex2](const auto& edge)
+            {
+                return (edge.GetVertex(1) == vertex2);
+            });
+
+        if (candidate != list_.at(vertex1).end())
+        {
+            list_.at(vertex1).erase(candidate);
+        }
     }
 
     //------------------------------------------------------------------------------
@@ -423,17 +597,24 @@ namespace implementation
             int weight)
     {
         //DEBUG
-        std::cout << "AdjacencyList<id_type>::RemoveEdge(vertex_type, ...):" << '\n';
+        std::cout << "AdjacencyList<id_type>::RemoveEdge( " << vertex1.Id() << ", " << vertex2.Id()
+                << " direction, " << weight << "):" << '\n';
         //DEBUG
 
-        list_.at(vertex1).erase(
-            std::find_if(list_.at(vertex1).begin(), list_.at(vertex1).end(),
+        // find edge
+        auto candidateMain = std::find_if(list_.at(vertex1).begin(), list_.at(vertex1).end(),
             [&vertex2, &direction, &weight](const auto& edge)
             {
                 return ((edge.GetVertex(1) == vertex2) &&
                         (edge.GetDirection() == direction) &&
                         (edge.GetWeight() == weight));
-            }));
+            });
+
+        if (candidateMain != list_.at(vertex1).end())
+        {
+            list_.at(vertex1).erase(candidateMain);
+        }
+        
 
         // undirected case: erase reversed
         if (direction == component::traits::edge_direction::none)
@@ -442,14 +623,18 @@ namespace implementation
             std::cout << "  Undirected edge case" << '\n';
             //DEBUG
 
-            list_.at(vertex2).erase(
-                std::find_if(list_.at(vertex2).begin(), list_.at(vertex2).end(),
+            auto candidateReverse = std::find_if(list_.at(vertex2).begin(), list_.at(vertex2).end(),
                 [&vertex1, &direction, &weight](const auto& edge)
                 {
                     return ((edge.GetVertex(1) == vertex1) &&
                             (edge.GetDirection() == direction) &&
                             (edge.GetWeight() == weight));
-                }));
+                });
+
+            if (candidateReverse != list_.at(vertex2).end())
+            {
+                list_.at(vertex2).erase(candidateReverse);
+            }
         }
     }
 
@@ -463,11 +648,19 @@ namespace implementation
     AdjacencyList<id_type>::GetNeighbours(
             const typename AdjacencyList<id_type>::vertex_type& vertex) const
     {
-        //DEBUG
-        std::cout << "AdjacencyList<id_type>::GetNeighbours(vertex_type):" << '\n';
-        //DEBUG
-
         return list_.at(vertex);
+    }
+
+    //------------------------------------------------------------------------------
+    //
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------
+    template<class id_type>
+    typename AdjacencyList<id_type>::iterator
+    AdjacencyList<id_type>::begin()
+    {
+        return list_.begin();
     }
 
     //------------------------------------------------------------------------------
@@ -479,11 +672,19 @@ namespace implementation
     typename AdjacencyList<id_type>::const_iterator
     AdjacencyList<id_type>::cbegin() const
     {
-        //DEBUG
-        std::cout << "AdjacencyList<id_type>::cbegin():" << '\n';
-        //DEBUG
-
         return list_.cbegin();
+    }
+
+    //------------------------------------------------------------------------------
+    //
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------
+    template<class id_type>
+    typename AdjacencyList<id_type>::iterator
+    AdjacencyList<id_type>::end()
+    {
+        return list_.end();
     }
 
     //------------------------------------------------------------------------------
@@ -495,10 +696,6 @@ namespace implementation
     typename AdjacencyList<id_type>::const_iterator
     AdjacencyList<id_type>::cend() const
     {
-        //DEBUG
-        std::cout << "AdjacencyList<id_type>::cend():" << '\n';
-        //DEBUG
-
         return list_.cend();
     }
 
@@ -516,6 +713,50 @@ namespace implementation
         //DEBUG
 
         return list_.size();
+    }
+
+    //------------------------------------------------------------------------------
+    //
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------
+    template<class id_type>
+    typename AdjacencyList<id_type>::map_type::iterator
+    AdjacencyList<id_type>::GetStructureIterator(
+            const typename AdjacencyList<id_type>::vertex_type& vertex)
+    {
+        std::cout << "Inside GetStructureIterator\n";
+
+        auto candidate = list_.find(vertex);
+
+        if (candidate != list_.end())
+        {
+            return candidate;
+        }
+
+        throw std::out_of_range("Graph contains no such vertex");
+    }
+
+    //------------------------------------------------------------------------------
+    //
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------
+    template<class id_type>
+    typename AdjacencyList<id_type>::map_type::const_iterator
+    AdjacencyList<id_type>::GetStructureIterator(
+            const typename AdjacencyList<id_type>::vertex_type& vertex) const
+    {
+        std::cout << "Inside const GetStructureIterator\n";
+
+        auto candidate = list_.find(vertex);
+
+        if (candidate != list_.end())
+        {
+            return candidate;
+        }
+
+        throw std::out_of_range("Graph contains no such vertex");
     }
 
 } //    namespace implementation

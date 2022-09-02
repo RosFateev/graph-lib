@@ -21,12 +21,10 @@
 // e.g.: #include <iostream>        // stdout
 #include <vector>
 #include <string>
-#include <sstream>
-#include <memory>
+#include <iostream>
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
-#include <SFML/Graphics.hpp>                    // sf::RenderWindow, sf::Color, ...
 #include "graph-lib/display/drawer/drawer.h"
 
 
@@ -72,16 +70,6 @@
 
 //------------------------------------------------------------------------------
 //
-//  <Design related information>
-//
-//------------------------------------------------------------------------------
-<data type> <function name>(...)
-{
-
-}
-
-//------------------------------------------------------------------------------
-//
 //  Palette class definition.
 //
 //------------------------------------------------------------------------------
@@ -92,9 +80,9 @@ namespace output
     //  <Design related information>
     //
     //------------------------------------------------------------------------------
-    Palette::Palette() : primaryColor_(0,0,0),
-                         secondaryColor_(),
-                         backgroundColor_()
+    Palette::Palette() : primaryColor_(sf::Color::Black),
+                         secondaryColor_(sf::Color::Red),
+                         backgroundColor_(sf::Color::White)
     {    }
 
 } // namespace output
@@ -108,22 +96,6 @@ namespace output
 //------------------------------------------------------------------------------
 namespace output
 {
-            /// @brief SFML window object.
-        sf::RenderWindow* pWindow_;
-
-        /// @brief Font to display strings.
-        sf::Font font_;
-
-        /// @brief Vertex size.
-        float vertexSize_;
-
-        /// @brief Edge thickness.
-
-        float edgeThickness_;
-
-        /// @brief Color palette.
-        Palette palette_;
-
     //------------------------------------------------------------------------------
     //
     //  <Design related information>
@@ -134,7 +106,7 @@ namespace output
                                                 edgeThickness_(2),
                                                 palette_()
     {
-        if (!font_.loadFromFile("include/graph-display/Calibri-Regular.ttf"))
+        if (!font_.loadFromFile("resources/Calibri-Regular.ttf"))
         {
             std::cout << "font wasn't loaded" << std::endl;
         }
@@ -165,6 +137,8 @@ namespace output
         edgeThickness_ = drawer.edgeThickness_,
         palette_ = drawer.palette_;
         font_ = drawer.font_;
+
+        return *this;
     }
 
     //------------------------------------------------------------------------------
@@ -174,7 +148,7 @@ namespace output
     //------------------------------------------------------------------------------
     // access window component 
     sf::RenderWindow&
-    Drawer::Window()
+    Drawer::GetWindow()
     {
         return *pWindow_;
     }
@@ -185,7 +159,7 @@ namespace output
     //
     //------------------------------------------------------------------------------
     Palette&
-    Drawer::Palette()
+    Drawer::GetPalette()
     {
         return palette_;
     }
@@ -231,7 +205,7 @@ namespace output
                      float x2,
                      float y2,
                      component::traits::edge_direction direction,
-                     const std::string& weight)
+                     int weight)
     {
         // create edge
         sf::Vertex edge[] =
@@ -243,58 +217,6 @@ namespace output
         // draw
         pWindow_->draw(edge, 2, sf::Lines);  // edge
     }
-
-
-//
-// MOVE TO OUTPUTTER
-//
-    // Draw graph
-    template< typename id_type>
-    void    Drawer<id_type>::DrawInstance(const typename Drawer<id_type>::out_instance_type& instance)
-    {
-        //event loop
-        while (pWindow_->isOpen())
-        {
-            // add some more sophisticated event handling
-            sf::Event event;
-            while (pWindow_->pollEvent(event))
-            {
-                if (event.type == sf::Event::Closed)
-                    pWindow_->close();
-            }
-
-            // clean canvas
-            this->Window().clear(sf::Color::White);
-
-            // display components        
-            for (auto edge_iterator = instance.Graph().e_begin(); edge_iterator != instance.Graph().e_end(); ++edge_iterator)
-            {
-
-                DrawEdge(   (*edge_iterator)->GetVertex(0).Coordinate(0), (*edge_iterator)->GetVertex(0).Coordinate(1),
-                            (*edge_iterator)->GetVertex(1).Coordinate(0), (*edge_iterator)->GetVertex(1).Coordinate(1));
-            }
-
-            for (auto vertex_iterator = instance.Graph().v_begin(); vertex_iterator != instance.Graph().v_end(); ++vertex_iterator)
-            {
-                std::stringstream converter;
-                std::string id_holder;
-                
-                // convert id_type to string
-                converter << (*vertex_iterator)->Id();
-                converter >> id_holder;
-
-                std::cout << "id_holder" << id_holder << '\n';
-
-                DrawVertex((*vertex_iterator)->Coordinate(0), (*vertex_iterator)->Coordinate(1), id_holder);
-            }
-                
-            // display graph 
-            this->Window().display();
-        }
-    }
-//
-// MOVE TO OUTPUTTER
-//
 
 } // namespace output
 

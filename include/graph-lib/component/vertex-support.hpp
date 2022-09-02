@@ -285,6 +285,19 @@ namespace component
 
 	//------------------------------------------------------------------------------
 	//
+	//  Vertex != operator.
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	bool
+	operator!=(const Vertex<id_type>& lhs,
+			   const Vertex<id_type>& rhs)
+	{
+		return lhs.Id() != rhs.Id();
+	}
+
+	//------------------------------------------------------------------------------
+	//
 	//  Vertex < operator
 	//
 	//------------------------------------------------------------------------------
@@ -294,6 +307,19 @@ namespace component
 			  const Vertex<id_type>& rhs)
 	{
 		return lhs.Id() < rhs.Id();
+	}
+
+	//------------------------------------------------------------------------------
+	//
+	//  Vertex <= operator
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	bool
+	operator<=(const Vertex<id_type>& lhs,
+			   const Vertex<id_type>& rhs)
+	{
+		return lhs.Id() <= rhs.Id();
 	}
 
 }  // namespace component

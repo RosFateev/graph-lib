@@ -29,6 +29,7 @@
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
 #include "graph-lib/component/edge-support.hpp"
+#include <SFML/Graphics.hpp>                    // sf::RenderWindow, sf::Color, ...
 
 
 //------------------------------------------------------------------------------
@@ -74,8 +75,9 @@ namespace output
         //------------------------------------------------------------------------------
         Palette();
 
-    public:
-
+        //
+        // State
+        //
         /// @brief Primary drawing color.
         sf::Color primaryColor_;
         /// @brief Secondary drawing color.
@@ -141,7 +143,7 @@ namespace output
         //------------------------------------------------------------------------------
         // access window component 
         sf::RenderWindow&
-        Window();
+        GetWindow();
 
         //------------------------------------------------------------------------------
         ///
@@ -152,7 +154,7 @@ namespace output
         //------------------------------------------------------------------------------
         // access window component 
         Palette&
-        Palette();
+        GetPalette();
 
         //------------------------------------------------------------------------------
         ///
@@ -194,7 +196,7 @@ namespace output
                  float x2,
                  float y2,
                  component::traits::edge_direction direction,
-                 const std::string& weight);
+                 int weight);
 
 
     private:

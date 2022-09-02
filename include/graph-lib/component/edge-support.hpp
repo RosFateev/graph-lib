@@ -137,6 +137,22 @@ namespace component
 
 	//------------------------------------------------------------------------------
 	//
+	//  Edge != operator.
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	bool
+	operator!=(const Edge<id_type>& lhs,
+			   const Edge<id_type>& rhs)
+	{
+		return ( (lhs.GetVertex(0).Id() != rhs.GetVertex(0).Id()) ||
+				 (lhs.GetVertex(1).Id() != rhs.GetVertex(1).Id()) ||
+				 (lhs.Direction() != rhs.Direction()) ||
+				 (lhs.Weight() != rhs.Weight()) );
+	}
+
+	//------------------------------------------------------------------------------
+	//
 	//  Edge < operator
 	//
 	//------------------------------------------------------------------------------
@@ -146,6 +162,19 @@ namespace component
 			  const Edge<id_type>& rhs)
 	{
 		return lhs.Weight() < rhs.Weight();
+	}
+
+	//------------------------------------------------------------------------------
+	//
+	//  Edge < operator
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	bool
+	operator<=(const Edge<id_type>& lhs,
+			   const Edge<id_type>& rhs)
+	{
+		return lhs.Weight() <= rhs.Weight();
 	}
 
 }  // namespace component

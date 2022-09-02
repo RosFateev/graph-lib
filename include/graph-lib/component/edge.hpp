@@ -25,8 +25,7 @@
 //------------------------------------------------------------------------------
 // System
 // e.g.: #include <iostream>        // stdout
-#include <memory>					// shared_ptr
-#include <array>
+#include <utility> 					// std::pair
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
@@ -79,7 +78,7 @@ namespace component
 	class Edge
 	{		
 		using vertex_type 			= Vertex<id_type>;
-		using vertex_container 		= std::array<vertex_type, 2>;
+		using vertex_container 		= std::pair<const vertex_type&, const vertex_type&>;
 		using connection_property	= std::tuple<traits::edge_direction, int>;
 
 	public:
@@ -247,7 +246,7 @@ namespace component
 	const typename Edge<id_type>::vertex_type&
 	Edge<id_type>::GetVertex(int index) const
 	{
-		return container_.at(index);
+		return (index == 0 ? container_.first : container_.second);
 	}
 
 	//------------------------------------------------------------------------------

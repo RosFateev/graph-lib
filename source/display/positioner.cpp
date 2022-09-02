@@ -73,23 +73,6 @@
 //------------------------------------------------------------------------------
 namespace output
 {
-        using coordinate_type       = std::pair<float, float>;
-        using coordinate_container  = std::vector<coordinate_type>;
-
-        int vertexCount_;
-
-        /// @brief X-coordinate of the upper-left corner of a sector.
-        float x_;
-
-        /// @brief y-coordinate of the upper-left corner of a sector.
-        float y_;
-
-        /// @brief Coordinate space width.
-        float width_;
-
-        /// @brief Coordinate space height.
-        float height_;
-
     //------------------------------------------------------------------------------
     //
     //  <Design related information>
@@ -103,7 +86,7 @@ namespace output
                                            x_(x),
                                            y_(y),
                                            width_(width),
-                                           heigh_(height)
+                                           height_(height)
     {   }
     
     //------------------------------------------------------------------------------
@@ -115,7 +98,7 @@ namespace output
                                                       x_(positioner.x_),
                                                       y_(positioner.y_),
                                                       width_(positioner.width_),
-                                                      heigh_(positioner.height_)
+                                                      height_(positioner.height_)
     {   }
     
     //------------------------------------------------------------------------------
@@ -130,7 +113,7 @@ namespace output
         x_ = positioner.x_;
         y_ = positioner.y_;
         width_ = positioner.width_;
-        heigh_ = positioner.height_;
+        height_ = positioner.height_;
 
         return *this;
     }
@@ -153,7 +136,7 @@ namespace output
     //  <Design related information>
     //
     //------------------------------------------------------------------------------
-    sector_type
+    std::pair<int, int>
     Positioner::Factors()
     {
         // determine split dimensions based on factors with minimal difference of N, 
@@ -168,8 +151,8 @@ namespace output
         }
 
         // ?
-        return (power % 2 == 0) ?   typename Positioner::sector_type( 1 << (power / 2), 1 << (power / 2)) : 
-                                    typename Positioner::sector_type( 1 << (power / 2), 1 << ((power / 2) + 1));
+        return (power % 2 == 0) ? std::pair<int,int>( 1 << (power / 2), 1 << (power / 2)) : 
+                                  std::pair<int,int>( 1 << (power / 2), 1 << ((power / 2) + 1));
     }
 
     //------------------------------------------------------------------------------
@@ -182,36 +165,26 @@ namespace output
     {
         typename Positioner::coordinate_container result;
 
-        //
-        auto new_factors = Factors(vertexCount_);
-
-        // if graph dimension has changed
-        if ((sectors_[sector_index].Get(0) != new_factors.Get(0)) ||
-            (sectors_[sector_index].Get(1) != new_factors.Get(1)))
-        {
-            // set new dimensions
-            sectors_[sector_index].Set(new_factors.Get(0),new_factors.Get(1));
-        }
+        // determine max number of vertices in a row and column of placement grid 
+        auto factors = Factors();
 
         // allow padding
-        int row_count = sectors_[sector_index].Get(0) + 2;
-        int col_count = sectors_[sector_index].Get(1) + 2;
+        int rowCount = factors.first + 2;
+        int colCount = factors.second + 2;
 
         // calculate positions
-        float local_width = width_ / col_sector_count_;
-        float local_height = height_ / row_sector_count_;
-        float x_0 = (sector_index % col_sector_count_) * local_width;
-        float y_0 = ((sector_index % col_sector_count_) % row_sector_count_) * local_height;
-        float xStep = float(local_width / col_count);
-        float yStep = float(local_height / row_count);
+        float x_0 = 0.f;
+        float y_0 = 0.f;
+        float xStep = float(width_ / colCount);
+        float yStep = float(height_ / rowCount);
         
         // vertical direction
-        for(int j = 1; j < row_count; ++j)
+        for(int j = 1; j < rowCount; ++j)
         {
             // x axis
-            for(int i = 1; i < col_count; ++i)
+            for(int i = 1; i < colCount; ++i)
             {
-                coordinates_.emplace_back(x_0 + xStep * i, y_0 + yStep * j);
+                result.emplace_back(x_0 + xStep * i, y_0 + yStep * j);
             }
         }
 

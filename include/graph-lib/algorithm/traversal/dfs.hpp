@@ -28,8 +28,10 @@
 //------------------------------------------------------------------------------
 // System
 // e.g.: #include <iostream>        // stdout
-#include <vector>
+#include <map>
 #include <stack>
+#include <algorithm> 			// std::for_each
+#include <iostream>
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
@@ -59,8 +61,8 @@
 //------------------------------------------------------------------------------
 namespace graph
 {
-	template<    class id_type,
-	             template<typename> typename EdgeType>
+	template<class id_type,
+	         typename implementation_type>
 	class Graph;
 }
 
@@ -70,55 +72,115 @@ namespace graph
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-/// @brief <Description>
+/// @brief Common graph algorithms.
 ///
-/// <Detailed description>
 //------------------------------------------------------------------------------
-class Object
+namespace algorithm
 {
-    /// @brief <Member description>
-    <data type> <name>;
-};
+	//------------------------------------------------------------------------------
+	/// @brief DFS implementation.
+	///
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	class dfs
+	{
+		using vertex_type           = component::Vertex<id_type>;
+        using edge_type             = component::Edge<id_type>;
+        using parent_structure      = std::map<vertex_type,
+        									   vertex_type,
+        									   component::support::vertex_less<id_type>>;
+        using graph_type 			= graph::Graph<id_type>;
+
+	public:
+
+		//------------------------------------------------------------------------------
+		///
+		/// @brief Value constructor.
+		///
+		/// @param[in] graph Input graph.
+		///
+		//------------------------------------------------------------------------------
+		dfs(const graph_type& graph);
+
+		//------------------------------------------------------------------------------
+		///
+		/// @brief Execute DFS algorithm.
+		///
+		/// @param[in] root Starting vertex.
+		///
+		//------------------------------------------------------------------------------
+		void
+		run(const vertex_type& root);
+
+		//------------------------------------------------------------------------------
+		///
+		/// @brief Get algorithm execution results.
+		///
+		/// @return Reference to parent structure defining order.
+		///
+		//------------------------------------------------------------------------------
+		const parent_structure&
+		get();
+
+
+	private:
+
+		//------------------------------------------------------------------------------
+		///
+		/// @brief Check if vertex was visited by DFS algorithm.
+		///
+		/// @param[in] vertex Input vertex.
+		///
+		/// @retval True If vertex was visited.
+		/// @retval False otherwise.
+		///
+		//------------------------------------------------------------------------------
+		bool
+		is_discovered(const vertex_type& vertex);
+
+		//------------------------------------------------------------------------------
+		///
+		/// @brief Reset parent structure.
+		///
+		//------------------------------------------------------------------------------
+		void
+		flush_structure();
+
+		//------------------------------------------------------------------------------
+		///
+		/// @brief Recursive DFS implementation.
+		///
+		/// @param[in] root Starting vertex.
+		///
+		//------------------------------------------------------------------------------
+		void
+		dfs_recursive(const vertex_type& root);
+
+		//------------------------------------------------------------------------------
+		///
+		/// @brief Stack DFS implementation.
+		///
+		/// @param[in] root Starting vertex.
+		///
+		//------------------------------------------------------------------------------
+		void
+		dfs_stack(const vertex_type& root);
+
+	private:
+
+		/// @brief Parent structure.
+		parent_structure structure_;
+
+		/// @brief Graph.
+		const graph_type& graph_;
+
+	};
+} // namespace algorithm
 
 
 //------------------------------------------------------------------------------
 // Function declarations
 //------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-///
-/// @brief <Description>
-///
-/// @param[in] <name> <Description>
-///
-/// @param[in,out] <name> <Description>
-///
-/// @param[out] <name> <Description>
-///
-/// @return <Description>
-/// @retval <Value i> <Description>
-///
-//------------------------------------------------------------------------------
-<data type> <function name>(...);
-
-//------------------------------------------------------------------------------
-///
-/// @brief DFS
-///
-/// Depth-First Search implementation
-/// Input: Graph G
-/// Output: for every vertex v parent[v]
-///
-/// @param[in] graph Input graph.
-///
-/// @return <Description>
-/// @retval <Value i> <Description>
-///
-//------------------------------------------------------------------------------
-template<id_type, EdgeType>
-std::vector<id_type>
-dfs(const graph::Graph<id_type, EdgeType>& graph,
-	const component::Vertex<id_type>& root);
 
 
 //------------------------------------------------------------------------------
@@ -133,17 +195,6 @@ dfs(const graph::Graph<id_type, EdgeType>& graph,
 
 //------------------------------------------------------------------------------
 //
-//  <Design related information>
-//
-//------------------------------------------------------------------------------
-<data type> <function name>(...)
-{
-
-}
-
-
-//------------------------------------------------------------------------------
-//
 // Algorithms namespace
 //
 //------------------------------------------------------------------------------
@@ -151,48 +202,133 @@ namespace algorithm
 {
 	//------------------------------------------------------------------------------
 	//
-	// Algorithms namespace
+	//  <Design related information>
 	//
 	//------------------------------------------------------------------------------
-	template<id_type, EdgeType>
-	std::vector<id_type>
-	dfs(const graph::Graph<id_type, EdgeType>& graph,
-		const component::Vertex<id_type>& root)
+	template<class id_type>
+	dfs<id_type>::dfs(const typename dfs<id_type>::graph_type& graph) : graph_(graph)
 	{
-		// output structure containing 
-		std::vector<id_type>
-		// label vertex as discovered
-		std::stack<component::Vertex<id_type>*> vStack;
+		flush_structure();
+	}
 
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	void
+	dfs<id_type>::run(const typename dfs<id_type>::vertex_type& root)
+	{
+		//dfs_recursive(root);
+		dfs_stack(root);
+	}
 
-		// proceed
-		while (!vStack.empty())
-		{
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	const typename dfs<id_type>::parent_structure&
+	dfs<id_type>::get()
+	{
+		return structure_;
+	}
 
-		}
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	bool
+	dfs<id_type>::is_discovered(const typename dfs<id_type>::vertex_type& vertex)
+	{
+		// Discovered : structure[vertex] != invalid_vertex
+		return (structure_.at(vertex) != component::Vertex<id_type>::invalidInstance_);
+	}
+
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	void
+	dfs<id_type>::flush_structure()
+	{
+		// initialize parent structure: insert <vertex, invalid_vertex> entries,
+		// where vertex - vertex of the graph
+		std::for_each(graph_.cbegin(), graph_.cend(),
+			[this](const auto& tuple)
+			{
+				structure_[tuple.first] = component::Vertex<id_type>::invalidInstance_;
+			});
+	}
+
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	void
+	dfs<id_type>::dfs_recursive(const typename dfs<id_type>::vertex_type& root)
+	{
 
 	}
 
-}
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	void
+	dfs<id_type>::dfs_stack(
+			const typename dfs<id_type>::vertex_type& root)
+	{
+		// initialize stack
+		std::stack<typename dfs<id_type>::vertex_type> stack;
+		stack.push(root);
+		// initialize parent
+		typename dfs<id_type>::vertex_type parent = root;
 
+		while (!stack.empty())
+		{
+			// pop current top vertex
+			auto currentVertex = stack.top();
+			stack.pop();
 
-//------------------------------------------------------------------------------
-///
-/// @brief <Description>
-///
-/// @param[in] <name> <Description>
-///
-/// @param[in,out] <name> <Description>
-///
-/// @param[out] <name> <Description>
-///
-/// @return <Description>
-/// @retval <Value i> <Description>
-///
-//------------------------------------------------------------------------------
-static <data type> <function name>(...)
-{
+			//DEBUG
+			std::cout << "Current vertex is [ " << currentVertex.Id() << " ]\n";
+			//DEBUG
 
+			// if not discovered
+			if (!is_discovered(currentVertex))
+			{
+				//DEBUG
+				std::cout << "	Label vertex [ " << currentVertex.Id()
+						<< " ] as discovered with its parent: ["
+						<< parent.Id()
+						<< "]\n";
+				//DEBUG
+
+				// discover
+				structure_[currentVertex] = parent;
+
+				// proceed with children
+				for (auto& neighbour : graph_.GetNeighbours(currentVertex))
+				{
+					stack.push(neighbour.GetVertex(1));
+				}
+			}
+
+			// update parent
+			parent = currentVertex;
+		}
+	}
 }
 
 
@@ -202,169 +338,3 @@ static <data type> <function name>(...)
 // End of dfs.hpp
 // (note: the newline at the end of the file is intentional)
 //==============================================================================
-
-
-// forward declaration of a Graph class (graph.hpp) to avoid circular inclusion
-
-
-
-
-
-
-
-namespace pathsearch
-{
-
-	// DFS class declaration. It is required to be initialized with a graph. It is copy-constructible,
-	// but not movable.
-
-	template<   typename                    id_type,
-                template<typename> typename EdgeType>
-	class DFS
-	{
-	public:
-		// type aliases for internal use
-		using v_traits    = component::vertextraits::vertex_traits<id_type>;
-		using vertex_type = component::Vertex<id_type>;
-		using edge_type   = EdgeType<id_type>;
-		using graph_type  = graph::Graph<id_type, EdgeType>;
-		// specific for std::unordered_set
-		using vertex_hash = component::support::VertexHash<id_type>; 
-		using vertex_eq   = component::support::VertexEqual<id_type>;
-
-
-
-
-
-	public:
-		// methods
-		DFS(   const graph_type&);
-		DFS(   const DFS&);
-		//
-		DFS(   DFS&&) = delete;
-		//
-		const DFS&                       operator=(   const DFS&);
-
-
-		
-		// main path computing method 
-		void                             Execute(  const vertex_type&);
-
-		// return result
-		const std::deque<vertex_type>&   Result() const;
-
-
-
-
-
-	private:
-		// state
-
-		const graph_type&       graph_;
-
-		std::deque<vertex_type> result_;
-	};
-
-} //	namespace pathsearch
-
-
-
-
-
-namespace pathsearch
-{
-
-	// DFS class definition
-	//
-	// constructor
-	template<   typename                    id_type,
-                template<typename> typename EdgeType>
-	DFS<id_type, EdgeType>::DFS(   const graph_type&             inGraph) :         graph_(inGraph)
-	{   }
-
-
-
-	//
-	template<   typename                    id_type,
-                template<typename> typename EdgeType>
-	DFS<id_type, EdgeType>::DFS(	  const DFS<id_type,EdgeType>&   inAlgorithm) :     graph_( inAlgorithm.graph_),
-	                                                                               result_(inAlgorithm.result_)
-	{   }
-
-
-
-	//
-	template<   typename                    id_type,
-                template<typename> typename EdgeType>
-	const DFS<id_type, EdgeType>&     DFS<id_type, EdgeType>::operator=(   const DFS<id_type, EdgeType>& inAlgorithm)
-	{
-		graph_  = inAlgorithm.graph_;
-		result_ = inAlgorithm.result_;
-
-		return *this;
-	}
-
-
-
-	// 
-	template<   typename                    id_type,
-                template<typename> typename EdgeType>
-	const std::deque<component::Vertex<id_type>>&   DFS<id_type, EdgeType>::Result() const
-	{ 
-		return result_;
-	}
-	
-
-
-	// Execute method
-	template<   typename                    id_type,
-                template<typename> typename EdgeType>
-	void                             DFS<id_type, EdgeType>::Execute(   const component::Vertex<id_type>& inRoot)
-	{
-		std::deque<component::Vertex<id_type>>                                   stack;
-		std::unordered_set<component::Vertex<id_type>, vertex_hash, vertex_eq>   discovered;
-
-		// add root to a stack and mark it discovered
-		stack.push_front( inRoot);
-		discovered.insert(inRoot);
- 
-		while(!stack.empty())
-		{
-			// pop the top element from a stack, add it to the resulting path
-			component::Vertex<id_type> currentVrtx(*stack.begin());
-			stack.pop_front();
-			result_.push_back(currentVrtx);
-
-			// get neighbours of the chosen vertex
-			auto currentNeighbours(graph_.GetNeighbours(currentVrtx));
-
-			// if neighbour vertex is discovered, add it to stack and mark discovered 
-			for(auto iter = currentNeighbours.begin(); iter != currentNeighbours.end(); ++iter)	
-			{
-				if (discovered.find(iter->Second()) == discovered.end())
-				{	
-					discovered.insert(iter->Second());
-					stack.push_front(iter->Second());
-				}
-			}
-		}
-
-	}
-
-} //namespace pathsearch
-
-/*
-	1	procedure DFS_iterative(G, v) is
-    2	let S be a stack
-    3	S.push(v)
-    4	while S is not empty do
-    5	   v = S.pop()
-    6	   if v is not labeled as discovered then
-    7	       label v as discovered
-    8	       for all edges from v to w in G.adjacentEdges(v) do 
-    9	           S.push(w)
-*/
-
-
-
-#endif //GRAPH_ALGORITHM_DFS_HPP

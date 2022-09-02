@@ -25,6 +25,7 @@
 //------------------------------------------------------------------------------
 // System
 // e.g.: #include <iostream>        // stdout
+#include <utility>              // std::pair
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
@@ -51,17 +52,6 @@
 //------------------------------------------------------------------------------
 // Data types
 //------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-/// @brief <Description>
-///
-/// <Detailed description>
-//------------------------------------------------------------------------------
-class Object
-{
-    /// @brief <Member description>
-    <data type> <name>;
-};
 
 //------------------------------------------------------------------------------
 /// @brief namespace containing all structures used to display graph.
@@ -139,13 +129,11 @@ namespace output
         /// Determine split dimensions based on factors with minimal difference of N,
         /// where N - power of two.
         ///
-        /// @param[in] int
-        /// 
         /// @return Computed split factors.
         ///
         //------------------------------------------------------------------------------
-        sector_type
-        Factors(int);
+        std::pair<int,int>
+        Factors();
 
         //------------------------------------------------------------------------------
         /// @brief Compute coordinates of a graph in a straight-forward manner.
