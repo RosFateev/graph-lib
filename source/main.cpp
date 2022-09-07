@@ -1,187 +1,159 @@
-#include <iostream>
-#include <algorithm>                                // std::for_each
+#include <iostream>             // std::cout
+#include <algorithm>            // std::for_each
 #include "graph-lib/graph.hpp"                      // graph::Graph
 #include "graph-lib/display/outputter.hpp"          // output::Outputter
 #include "graph-lib/algorithm/traversal/dfs.hpp"    // algorithm::dfs
+#include "graph-lib/algorithm/traversal/bfs.hpp"    // algorithm::bfs
+
+
 
 
 
 // Create string representation of edge direction type
-std::string direction_to_string(component::traits::edge_direction direction)
+std::string
+direction_to_string(component::traits::edge_direction direction)
 {
     return direction == component::traits::edge_direction::none ? "---" : "-->";
 }
 
-
 // print vertex to stdout
 template<class id_type>
-void print_vertex(const component::Vertex<id_type>& vertex)
+void
+print_vertex(const component::Vertex<id_type>& vertex)
 {
-    // [ id, (x,y) ]
-    std::cout << "[ " << vertex.Id()
-          << ", (" << vertex.Coordinate(0)
-          << "," << vertex.Coordinate(1)
-          << ") ]";
+    std::cout << "[ "
+        << vertex.Id() << " - ("
+        << vertex.Coordinate(0) << ","
+        << vertex.Coordinate(1) << ") ]";
 }
 
-
-// print graph to stdout
+// print edge to stdout
 template<class id_type>
-void print_graph(const graph::Graph<id_type>& graph)
+void
+print_edge(const component::Edge<id_type>& edge)
 {
-    // iterate over map structure
-    std::for_each(graph.cbegin(), graph.cend(),
-        [&graph](const auto& mapTuple)
+    std::cout << "< ";
+    print_vertex<id_type>(edge.GetVertex(0));
+    std::cout << ", ";
+    print_vertex<id_type>(edge.GetVertex(1));
+    std::cout << ", ";
+    std::cout << direction_to_string(edge.GetDirection());
+    std::cout << ", ";
+    std::cout << edge.GetWeight() << " >";
+}
+
+// print algorithm results to stdout
+template<class id_type>
+void
+print_algorithm_result(
+        const std::map<component::Vertex<id_type>,
+                       component::Vertex<id_type>,
+                       component::support::vertex_less<id_type>>& container)
+{
+    std::cout << "Algorithm structure:\n";
+
+    std::for_each(container.cbegin(),container.cend(),
+        [](const auto& tuple)
         {
-            // print vertex
-            print_vertex<id_type>(mapTuple.first);
-            std::cout << " :";
-
-            // print edges
-            auto edges = graph.GetNeighbours(mapTuple.first);
-
-            std::for_each(edges.begin(), edges.end(),
-                [&mapTuple](const auto& edge)
-                {
-                    std::cout << " < ";
-                    print_vertex<id_type>(edge.GetVertex(0));
-                    std::cout << ", ";
-                    print_vertex<id_type>(edge.GetVertex(1));
-                    std::cout << ", "
-                              << direction_to_string(edge.GetDirection())
-                              << ", "
-                              << edge.GetWeight()
-                              << ">";
-                });
-            std::cout << std::endl;
+            std::cout << "Key: ";
+            print_vertex<id_type>(tuple.first);
+            std::cout << ", Value: ";
+            print_vertex<id_type>(tuple.second);
+            std::cout << "\n";
         });
 }
 
 
-// create graph instance
+
+
+
 template<class id_type>
-graph::Graph<id_type> create_test_graph()
+void
+initialize_graph(graph::Graph<id_type>& testGraph)
 {
-    // create graph object
-    graph::Graph<char> testGraph;
-    
-    //        3
-    // ('a') --> ('b')
-    //  | \        |
-    //  |  --      |
-    // 7|    \0    |5
-    //  |     --   |
-    //  |       \  V
-    // ('d') <-- ('c')
-    //        1
     // fill with vertices
     testGraph.AddVertex('a');
     testGraph.AddVertex('b');
     testGraph.AddVertex('c');
     testGraph.AddVertex('d');
+    testGraph.AddVertex('e');
+    testGraph.AddVertex('f');
     
+
     // fill graph with edges
+    // a edges
     testGraph.AddEdge( 'a', 'b', component::traits::edge_direction::one_two, 3);
-    testGraph.AddEdge( 'a', 'c', component::traits::edge_direction::none);
     testGraph.AddEdge( 'a', 'd', component::traits::edge_direction::none, 7);
-    testGraph.AddEdge( 'b', 'c', component::traits::edge_direction::one_two, 5);
-    testGraph.AddEdge( 'c', 'd', component::traits::edge_direction::one_two, 1);
+    testGraph.AddEdge( 'a', 'e', component::traits::edge_direction::none);
+    // b edges
+    testGraph.AddEdge( 'b', 'e', component::traits::edge_direction::one_two, 5);
+    // c edges
+    testGraph.AddEdge( 'c', 'b', component::traits::edge_direction::one_two, 10);
+    // e edges
+    testGraph.AddEdge( 'e', 'c', component::traits::edge_direction::one_two, 4);
+    testGraph.AddEdge( 'e', 'd', component::traits::edge_direction::one_two, 1);
+    testGraph.AddEdge( 'e', 'f', component::traits::edge_direction::one_two, 15);
+    // f edges
+    testGraph.AddEdge( 'f', 'c', component::traits::edge_direction::none, 1);
 
     std::cout << "Graph object was created" << std::endl;
-
-    return testGraph;
 }
+
+
+
+
+
+template<class id_type>
+void
+traversal_demo(graph::Graph<id_type>& testGraph)
+{
+    // draw graph
+    output::Outputter<char> graphout;
+    graphout.Display(testGraph);
+
+
+    // run dfs
+    algorithm::dfs<char> dfsObj(&testGraph);
+    dfsObj.run(testGraph.GetVertex('a'));
+    // print algorithm result
+    print_algorithm_result<char>(dfsObj.get());
+    // draw algorithm result
+    graphout.Display(testGraph, &dfsObj.get());
+
+
+    // run bfs
+    algorithm::bfs<char> bfsObj(&testGraph);
+    bfsObj.run(testGraph.GetVertex('a'));
+    // print algorithm result
+    print_algorithm_result<char>(bfsObj.get());
+    // draw algorithm result
+    graphout.Display(testGraph, &bfsObj.get());
+}
+
+
 
 
 
 int main()
 {
-    auto testGraph = create_test_graph<char>();
+    // create test graph
+    //        3         10
+    // ('a') --> ('b') <-- ('c')
+    //  | \        |       > |
+    //  |  --      |    4 /  |
+    // 7|    \0    |5   --   | 1
+    //  |     --   |   /     |
+    //  |       \  V  /      |
+    // ('d') <-- ('e') --> ('f')
+    //        1         15
+    graph::Graph<char> testGraph;
+    
+    initialize_graph<char>(testGraph);
 
-    // print graph
-    print_graph<char>(testGraph);
 
-    // draw graph
-    output::Outputter<char> graphout;
-    graphout << testGraph;
+    // run dfs and bfs algorithms
+    traversal_demo<char>(testGraph);
+    
 
-    // print graph after drawer component done stuff
-    print_graph<char>(testGraph);
-
-
-    // run dfs
-    algorithm::dfs<char> dfsObj(testGraph);
-    dfsObj.run(testGraph.GetVertex('a'));
-
-    // print result
-    std::for_each(dfsObj.get().begin(), dfsObj.get().end(),
-        [](const auto& tuple)
-        {
-            print_vertex<char>(tuple.first);
-            std::cout << " : ";
-            print_vertex<char>(tuple.second);
-            std::cout << '\n';
-        });
-
-    /*
-    // remove components:
-    //        3
-    // ('a') --> ('b')                ('b')
-    //  | \        |                    |
-    //  |  --      |                    |
-    // 7|    \0    |5      ~            |5
-    //  |     --   |                    |
-    //  |       \  V                    V
-    // ('d') <-- ('c')       ('d')    ('c')
-    //        1
-    testGraph.RemoveVertex('a');
-    testGraph.RemoveEdge('c','d', component::traits::edge_direction::one_two, 1);
-
-    // print graph
-    print_graph<char>(testGraph);
-
-    // display graph
-    graphout << testGraph;
-
-    // try to remove/access nonexisting values
-    try
-    {
-        testGraph.GetVertex('e');
-    }
-    catch (const std::exception& e)
-    {
-        std::cout << e.what() << '\n';
-    }
-
-    try
-    {
-        testGraph.GetEdge('b', 'c', component::traits::edge_direction::none, 5);
-    }
-    catch (const std::exception& e)
-    {
-        std::cout << e.what() << '\n';
-    }
-
-    try
-    {
-        testGraph.RemoveEdge('b', 'a', component::traits::edge_direction::none, 5);
-    }
-    catch (const std::exception& e)
-    {
-        std::cout << e.what() << '\n';
-    }
-
-    try
-    {
-        testGraph.RemoveVertex('a');
-    }
-    catch (const std::exception& e)
-    {
-        std::cout << e.what() << '\n';
-    }
-
-    // print graph
-    print_graph<char>(testGraph);
-    */
     return 0;
 }

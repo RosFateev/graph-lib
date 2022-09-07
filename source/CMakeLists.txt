@@ -13,7 +13,7 @@ add_subdirectory(display)
 
 
 add_executable(${PROJECT_NAME} main.cpp)
-#add_library(${PROJECT_NAME})
+#add_library(${PROJECT_NAME} main.cpp)
 
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)

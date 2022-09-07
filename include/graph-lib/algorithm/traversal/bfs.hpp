@@ -1,209 +1,341 @@
-// Header description: 
+//==============================================================================
+///
+/// @file bfs.hpp
+///
+/// @brief Breadth First Search algorithm
+///
+/// The documentation is available on the following website:
+/// <website>
+///
+/// Support email: <email>
+///
+//==============================================================================
+
+//==============================================================================
+// Include only once
 //
-// This is an implementation of Breadth-First Search algorithm. BFS class is parametrized by the type
-// of edges and the internal id type of the vertices. It uses std::deque as a queue and 
-// std::unordered_set to mark discovered vertices. The result tree is stored in a std::deque subobject.
-//
-//
-// Author: Rostislav Fateev
-
-#ifndef GRAPH_ALGORITHM_BFS_HPP
-#define GRAPH_ALGORITHM_BFS_HPP
+#ifndef GRAPH_LIB_ALGORITHM_TRAVERSAL_BFS_HPP
+#define GRAPH_LIB_ALGORITHM_TRAVERSAL_BFS_HPP
 
 
+//------------------------------------------------------------------------------
+// Include files
+//------------------------------------------------------------------------------
+// System
+// e.g.: #include <iostream>        // stdout
+#include <map>
+#include <queue>
+#include <algorithm> 			// std::for_each
+#include <iostream>
+
+// Project
+// e.g.: #include "IncludeFile.h"   // MyType_t
+#include <graph-lib/component/vertex.hpp>
 
 
-
-// related
-// c
-// std 
-#include <deque>
-#include <unordered_set>
-#include <memory>
-// lib
-// user
-#include "graph-component/vertex.hpp"
+//------------------------------------------------------------------------------
+// Global references
+//------------------------------------------------------------------------------
+// (none)
 
 
+//------------------------------------------------------------------------------
+// Constants
+//------------------------------------------------------------------------------
+// (none)
 
 
+//------------------------------------------------------------------------------
+// Macros
+//------------------------------------------------------------------------------
+// (none)
 
-// forward declaration of a Graph class (graph.hpp) to avoid circular inclusion
+
+//------------------------------------------------------------------------------
+// Forward declarations
+//------------------------------------------------------------------------------
 namespace graph
 {
-	template<    class IdType,
-	             template<typename> typename EdgeType>
+	template<class id_type,
+	         typename implementation_type>
 	class Graph;
 }
 
 
+//------------------------------------------------------------------------------
+// Data types
+//------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-// 
-// BFS declaration
-//
-namespace pathsearch
+//------------------------------------------------------------------------------
+/// @brief Common graph algorithms.
+///
+//------------------------------------------------------------------------------
+namespace algorithm
 {
-	template<   typename                    IdType,
-                template<typename> typename EdgeType>
-	class BFS
-	{		
-		using vertex_type 		= component::Vertex<IdType>;
-		using vertex_ptr 		= std::shared_ptr<vertex_type>;
-		using edge_type 		= EdgeType<IdType>;
-		using edge_container 	= std::vector<EdgeType<IdType>>;
-		using graph_type 		= graph::Graph<IdType, EdgeType>;
-		using vertex_traits     = component::traits::vertex_traits<IdType>;
-		using edge_traits       = component::traits::edge_traits<IdType>;
-		// specific for std::unordered_set
-		using vertex_hash 		= component::support::VertexPtrHash<IdType>; 
-		using vertex_eq   		= component::support::VertexPtrEqual<IdType>;
-		using deque_type 		= std::deque<vertex_ptr>;
-		using set_type 			= std::unordered_set<vertex_ptr, vertex_hash, vertex_eq>;
+	//------------------------------------------------------------------------------
+	/// @brief BFS implementation.
+	///
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	class bfs
+	{
+		using vertex_type           = component::Vertex<id_type>;
+        using edge_type             = component::Edge<id_type>;
+        using parent_structure      = std::map<vertex_type,
+        									   vertex_type,
+        									   component::support::vertex_less<id_type>>;
+        using graph_type 			= graph::Graph<id_type>;
 
 	public:
-		// methods
-		BFS(   const graph_type&);
-		BFS(   const BFS&);
-		BFS(   BFS&&) = delete;
 
-		//
-		const BFS& 	operator=(   const BFS&);
+		//------------------------------------------------------------------------------
+		///
+		/// @brief Value constructor.
+		///
+		/// @param[in] pGraph Input graph pointer.
+		///
+		//------------------------------------------------------------------------------
+		bfs(const graph_type* pGraph);
 
+		//------------------------------------------------------------------------------
+		///
+		/// @brief Execute BFS algorithm.
+		///
+		/// @param[in] root Starting vertex.
+		///
+		//------------------------------------------------------------------------------
+		void
+		run(const vertex_type& root);
 
-		
-		// main path computing method 
-		void                            Execute(  const vertex_ptr&);
+		//------------------------------------------------------------------------------
+		///
+		/// @brief Get algorithm execution results.
+		///
+		/// @return Reference to parent structure defining order.
+		///
+		//------------------------------------------------------------------------------
+		const parent_structure&
+		get();
 
-		// return result
-		const deque_type&  				Result() const;
-		deque_type&   					Result();
-
-
-
+		//------------------------------------------------------------------------------
+		///
+		/// @brief Get algorithm's graph.
+		///
+		/// @return Reference to graph object.
+		///
+		//------------------------------------------------------------------------------
+		const graph_type*
+		get_graph();
 
 
 	private:
 
-		//
-		// state
-		//
-		const graph_type& 	graph_;
-		deque_type 			result_;
+		//------------------------------------------------------------------------------
+		///
+		/// @brief Check if second enpoint was visited by BFS algorithm.
+		///
+		/// @param[in] vertex Input vertex.
+		///
+		/// @retval True If vertex was visited.
+		/// @retval False otherwise.
+		///
+		//------------------------------------------------------------------------------
+		bool
+		is_discovered(const vertex_type& vertex);
+
+		//------------------------------------------------------------------------------
+		///
+		/// @brief Reset parent structure.
+		///
+		//------------------------------------------------------------------------------
+		void
+		flush_structure();
+
+		//------------------------------------------------------------------------------
+		///
+		/// @brief Queue BFS implementation.
+		///
+		/// @param[in] root Starting vertex.
+		///
+		//------------------------------------------------------------------------------
+		void
+		bfs_queue(const vertex_type& root);
+
+	private:
+
+		/// @brief Parent structure.
+		parent_structure structure_;
+
+		/// @brief Graph.
+		const graph_type* pGraph_;
+
 	};
-
-} //	namespace pathsearch
-
+} // namespace algorithm
 
 
+//------------------------------------------------------------------------------
+// Function declarations
+//------------------------------------------------------------------------------
 
 
-namespace pathsearch
+//------------------------------------------------------------------------------
+// Variable definitions
+//------------------------------------------------------------------------------
+// (none)
+
+
+//------------------------------------------------------------------------------
+// Function definitions
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+//
+// Algorithms namespace
+//
+//------------------------------------------------------------------------------
+namespace algorithm
 {
-
-	// BFS class definition
+	//------------------------------------------------------------------------------
 	//
-	// constructor
-	template<   typename                    IdType,
-                template<typename> typename EdgeType>
-	BFS<IdType, EdgeType>::BFS(   const graph_type&             inGraph) :         graph_(inGraph)
-	{   }
-
-
-
+	//  <Design related information>
 	//
-	template<   typename                    IdType,
-                template<typename> typename EdgeType>
-	BFS<IdType, EdgeType>::BFS(	  const BFS<IdType,EdgeType>&   inAlgorithm) :     graph_( inAlgorithm.graph_),
-	                                                                               result_(inAlgorithm.result_)
-	{   }
-
-
-
-	//
-	template<   typename                    IdType,
-                template<typename> typename EdgeType>
-	const BFS<IdType, EdgeType>&     BFS<IdType, EdgeType>::operator=(   const BFS<IdType, EdgeType>& inAlgorithm)
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	bfs<id_type>::bfs(const typename bfs<id_type>::graph_type* pGraph) : pGraph_(pGraph)
 	{
-		graph_  = inAlgorithm.graph_;
-		result_ = inAlgorithm.result_;
-
-		return *this;
+		flush_structure();
 	}
 
-
-
-	// 
-	template<   typename                    IdType,
-                template<typename> typename EdgeType>
-	const typename BFS<IdType, EdgeType>::deque_type&   BFS<IdType, EdgeType>::Result() const
-	{ 
-		return result_;
-	}
-
-	template<   typename                    IdType,
-                template<typename> typename EdgeType>
-	typename BFS<IdType, EdgeType>::deque_type&   BFS<IdType, EdgeType>::Result()
-	{ 
-		return result_;
-	}
-	
-
-
-	// Execute method
-	template<   typename                    IdType,
-                template<typename> typename EdgeType>
-	void                        BFS<IdType, EdgeType>::Execute(   const typename BFS<IdType, EdgeType>::vertex_ptr& inRoot)
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	void
+	bfs<id_type>::run(const typename bfs<id_type>::vertex_type& root)
 	{
-		typename BFS<IdType, EdgeType>::deque_type 		queue;
-		typename BFS<IdType, EdgeType>::set_type   		discovered;
+		bfs_queue(root);
+	}
 
-		// add root to a queue and mark it discovered
-		queue.push_back( inRoot);
-		discovered.insert(inRoot);
- 
-		while(!queue.empty())
-		{
-			// pop the top element from a queue, add it to the resulting path
-			typename BFS<IdType, EdgeType>::vertex_ptr currentVrtx(*queue.begin());
-			queue.pop_front();
-			result_.push_back(currentVrtx);
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	const typename bfs<id_type>::parent_structure&
+	bfs<id_type>::get()
+	{
+		return structure_;
+	}
 
-			// if neighbour vertex is discovered, add it to queue and mark discovered
-			for(auto iter = graph_.Neighbours(currentVrtx).begin(); iter != graph_.Neighbours(currentVrtx).end(); ++iter)	
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	const typename bfs<id_type>::graph_type*
+	bfs<id_type>::get_graph()
+	{
+		return pGraph_;
+	}
+
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	bool
+	bfs<id_type>::is_discovered(const typename bfs<id_type>::vertex_type& vertex)
+	{
+		// Discovered: parent structure contains valid entry for the second endpoint
+		return (structure_.at(vertex) != 
+				component::Vertex<id_type>::invalidInstance_);
+	}
+
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	void
+	bfs<id_type>::flush_structure()
+	{
+		// initialize parent structure: insert <vertex, invalid_vertex> entries,
+		// where vertex - vertex of the graph
+		std::for_each(pGraph_->cbegin(), pGraph_->cend(),
+			[this](const auto& tuple)
 			{
-				if (discovered.find(iter->Second()) == discovered.end())
-				{	
-					discovered.insert(iter->Second());
-					queue.push_back(iter->Second());
+				structure_[tuple.first] = 
+					component::Vertex<id_type>::invalidInstance_;
+			});
+	}
+
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	void
+	bfs<id_type>::bfs_queue(
+			const typename bfs<id_type>::vertex_type& root)
+	{
+		// initialize connection queue
+		std::queue<std::pair<typename bfs<id_type>::vertex_type, 
+							 typename bfs<id_type>::vertex_type>> queue;
+		// artificial algorithm initializer edge
+		auto rootConnection = std::make_pair(root,root);
+		queue.push(rootConnection);
+
+		while (!queue.empty())
+		{
+			// pop current top vertex
+			auto neighbourConnection = queue.front();
+			queue.pop();
+			//DEBUG
+			std::cout << "		- < [" << neighbourConnection.first.Id() << "], ["
+			<< neighbourConnection.second.Id() << "], ...> removed from queue\n"; 
+			//DEBUG
+
+			// if not discovered
+			if (!is_discovered(neighbourConnection.second))
+			{
+				//DEBUG
+				std::cout << "	Label current < [" 
+				<< neighbourConnection.first.Id() << "], ["
+				<< neighbourConnection.second.Id() << "] > as discovered\n";
+				//DEBUG
+
+				// label as discovered
+				structure_.at(neighbourConnection.second) = neighbourConnection.first;
+
+				// proceed with children
+				for (auto& neighbourEdge : pGraph_->GetNeighbours(neighbourConnection.second))
+				{
+					//DEBUG
+					std::cout << "		+ < [" << neighbourEdge.GetVertex(0).Id() << "], ["
+					<< neighbourEdge.GetVertex(1).Id() << "] > added to queue\n"; 
+					//DEBUG
+					auto tmpPair = std::make_pair(neighbourEdge.GetVertex(0), neighbourEdge.GetVertex(1));
+
+					queue.push(tmpPair);
 				}
+
 			}
 		}
-
 	}
 
-} //namespace pathsearch
+}
 
-/*
-1	 procedure BFS(G, root) is
-2      let Q be a queue
-3      label root as discovered
-4      Q.enqueue(root)
-5      while Q is not empty do
-6          v := Q.dequeue()
-7          if v is the goal then
-8              return v
-9          for all edges from v to w in G.adjacentEdges(v) do
-10             if w is not labeled as discovered then
-11                 label w as discovered
-12                 w.parent := v
-13                 Q.enqueue(w)
-*/
 
-#endif //GRAPH_ALGORITHM_BFS_HPP
+
+#endif // GRAPH_LIB_ALGORITHM_TRAVERSAL_BFS_HPP
+//==============================================================================
+// End of bfs.hpp
+// (note: the newline at the end of the file is intentional)
+//==============================================================================

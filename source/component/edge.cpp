@@ -1,6 +1,6 @@
 //==============================================================================
 ///
-/// @file <file name>
+/// @file edge.cpp
 ///
 /// @brief <description>
 ///
@@ -13,21 +13,23 @@
 ///
 //==============================================================================
 
-//==============================================================================
-// Include only once
-//
-#ifndef TEMPLATE_H
-#define TEMPLATE_H
-
 
 //------------------------------------------------------------------------------
 // Include files
 //------------------------------------------------------------------------------
 // System
 // e.g.: #include <iostream>        // stdout
+#include <string>
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
+#include "graph-lib/component/edge.hpp"
+
+
+//------------------------------------------------------------------------------
+// Global references
+//------------------------------------------------------------------------------
+// (none)
 
 
 //------------------------------------------------------------------------------
@@ -35,6 +37,37 @@
 //------------------------------------------------------------------------------
 // (none)
 
+namespace component
+{
+    // instantiate invalid vertices for various classes
+    // char
+    template<>
+    const Edge<char> 
+    Edge<char>::invalidInstance_ = Edge<char>(
+            Vertex<char>::invalidInstance_,
+            Vertex<char>::invalidInstance_);
+
+    // int
+    template<>
+    const Edge<int> 
+    Edge<int>::invalidInstance_ = Edge<int>(
+            Vertex<int>::invalidInstance_,
+            Vertex<int>::invalidInstance_);
+
+    // float
+    template<>
+    const Edge<float> 
+    Edge<float>::invalidInstance_ = Edge<float>(
+            Vertex<float>::invalidInstance_,
+            Vertex<float>::invalidInstance_);
+
+    // string
+    template<>
+    const Edge<std::string> 
+    Edge<std::string>::invalidInstance_ = Edge<std::string>(
+            Vertex<std::string>::invalidInstance_,
+            Vertex<std::string>::invalidInstance_);
+}
 
 //------------------------------------------------------------------------------
 // Macros
@@ -43,52 +76,30 @@
 
 
 //------------------------------------------------------------------------------
-// Forward declarations
+// Local data types
 //------------------------------------------------------------------------------
 // (none)
 
 
 //------------------------------------------------------------------------------
-// Data types
+// Forward function declarations
 //------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-/// @brief <Description>
-///
-/// <Detailed description>
-//------------------------------------------------------------------------------
-class Object
-{
-    /// @brief <Member description>
-    <data type> <name>;
-};
+// (none)
 
 
 //------------------------------------------------------------------------------
-// Function declarations
+// Variable definitions
+//------------------------------------------------------------------------------
+// (none)
+
+
+//------------------------------------------------------------------------------
+// Function definitions
 //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-///
-/// @brief <Description>
-///
-/// @param[in] <name> <Description>
-///
-/// @param[in,out] <name> <Description>
-///
-/// @param[out] <name> <Description>
-///
-/// @return <Description>
-/// @retval <Value i> <Description>
-///
-//------------------------------------------------------------------------------
-<data type> <function name>(...);
 
 
-
-//
-#endif // TEMPLATE_H
 //==============================================================================
-// End of template.h
+// End of edge.cpp
 // (note: the newline at the end of the file is intentional)
 //==============================================================================

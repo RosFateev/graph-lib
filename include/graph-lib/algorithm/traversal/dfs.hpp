@@ -4,11 +4,6 @@
 ///
 /// @brief Depth First Search algorithm
 ///
-/// This is an implementation of Depth-First Search algorithm. DFS class is
-/// parametrized by the type of edges and the internal id type of the vertices.
-/// It uses std::deque as a stack and std::unordered_set to mark discovered
-/// vertices. The result tree is stored in a std::deque subobject.
-///
 /// The documentation is available on the following website:
 /// <website>
 ///
@@ -97,10 +92,10 @@ namespace algorithm
 		///
 		/// @brief Value constructor.
 		///
-		/// @param[in] graph Input graph.
+		/// @param[in] pGraph Input graph pointer.
 		///
 		//------------------------------------------------------------------------------
-		dfs(const graph_type& graph);
+		dfs(const graph_type* pGraph);
 
 		//------------------------------------------------------------------------------
 		///
@@ -119,15 +114,25 @@ namespace algorithm
 		/// @return Reference to parent structure defining order.
 		///
 		//------------------------------------------------------------------------------
-		const parent_structure&
+		parent_structure&
 		get();
+
+		//------------------------------------------------------------------------------
+		///
+		/// @brief Get algorithm's graph.
+		///
+		/// @return Reference to graph object.
+		///
+		//------------------------------------------------------------------------------
+		const graph_type*
+		get_graph();
 
 
 	private:
 
 		//------------------------------------------------------------------------------
 		///
-		/// @brief Check if vertex was visited by DFS algorithm.
+		/// @brief Check if second enpoint was visited by DFS algorithm.
 		///
 		/// @param[in] vertex Input vertex.
 		///
@@ -150,11 +155,14 @@ namespace algorithm
 		///
 		/// @brief Recursive DFS implementation.
 		///
-		/// @param[in] root Starting vertex.
+		/// @param[in] parent Parent vertex.
+		///
+		/// @param[in] vertex Current vertex.
 		///
 		//------------------------------------------------------------------------------
 		void
-		dfs_recursive(const vertex_type& root);
+		dfs_recursive(const vertex_type& parent,
+					  const vertex_type& vertex);
 
 		//------------------------------------------------------------------------------
 		///
@@ -172,7 +180,7 @@ namespace algorithm
 		parent_structure structure_;
 
 		/// @brief Graph.
-		const graph_type& graph_;
+		const graph_type* pGraph_;
 
 	};
 } // namespace algorithm
@@ -206,7 +214,7 @@ namespace algorithm
 	//
 	//------------------------------------------------------------------------------
 	template<class id_type>
-	dfs<id_type>::dfs(const typename dfs<id_type>::graph_type& graph) : graph_(graph)
+	dfs<id_type>::dfs(const typename dfs<id_type>::graph_type* pGraph) : pGraph_(pGraph)
 	{
 		flush_structure();
 	}
@@ -220,8 +228,8 @@ namespace algorithm
 	void
 	dfs<id_type>::run(const typename dfs<id_type>::vertex_type& root)
 	{
-		//dfs_recursive(root);
-		dfs_stack(root);
+		dfs_recursive(root, root);
+		//dfs_stack(root);
 	}
 
 	//------------------------------------------------------------------------------
@@ -230,7 +238,7 @@ namespace algorithm
 	//
 	//------------------------------------------------------------------------------
 	template<class id_type>
-	const typename dfs<id_type>::parent_structure&
+	typename dfs<id_type>::parent_structure&
 	dfs<id_type>::get()
 	{
 		return structure_;
@@ -242,11 +250,24 @@ namespace algorithm
 	//
 	//------------------------------------------------------------------------------
 	template<class id_type>
+	const typename dfs<id_type>::graph_type*
+	dfs<id_type>::get_graph()
+	{
+		return pGraph_;
+	}
+
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
 	bool
 	dfs<id_type>::is_discovered(const typename dfs<id_type>::vertex_type& vertex)
 	{
-		// Discovered : structure[vertex] != invalid_vertex
-		return (structure_.at(vertex) != component::Vertex<id_type>::invalidInstance_);
+		// Discovered: parent structure contains valid entry for the second endpoint
+		return (structure_.at(vertex) != 
+				component::Vertex<id_type>::invalidInstance_);
 	}
 
 	//------------------------------------------------------------------------------
@@ -260,10 +281,11 @@ namespace algorithm
 	{
 		// initialize parent structure: insert <vertex, invalid_vertex> entries,
 		// where vertex - vertex of the graph
-		std::for_each(graph_.cbegin(), graph_.cend(),
+		std::for_each(pGraph_->cbegin(), pGraph_->cend(),
 			[this](const auto& tuple)
 			{
-				structure_[tuple.first] = component::Vertex<id_type>::invalidInstance_;
+				structure_[tuple.first] = 
+					component::Vertex<id_type>::invalidInstance_;
 			});
 	}
 
@@ -274,9 +296,27 @@ namespace algorithm
 	//------------------------------------------------------------------------------
 	template<class id_type>
 	void
-	dfs<id_type>::dfs_recursive(const typename dfs<id_type>::vertex_type& root)
+	dfs<id_type>::dfs_recursive(
+			const typename dfs<id_type>::vertex_type& parent,
+			const typename dfs<id_type>::vertex_type& vertex)
 	{
+		//DEBUG
+		std::cout << "		< [" 
+			<< parent.Id() << "], ["
+			<< vertex.Id() << "] > current connection\n"; 
+		//DEBUG
 
+		// mark node as discovered
+		structure_[vertex] = parent;
+
+		// proceed with vertex children
+		for (auto& neighbour : pGraph_->GetNeighbours(vertex))
+		{
+			if (!is_discovered(neighbour.GetVertex(1)))
+			{
+				dfs_recursive(vertex, neighbour.GetVertex(1));
+			}
+		}
 	}
 
 	//------------------------------------------------------------------------------
@@ -289,44 +329,48 @@ namespace algorithm
 	dfs<id_type>::dfs_stack(
 			const typename dfs<id_type>::vertex_type& root)
 	{
-		// initialize stack
-		std::stack<typename dfs<id_type>::vertex_type> stack;
-		stack.push(root);
-		// initialize parent
-		typename dfs<id_type>::vertex_type parent = root;
+		// initialize connection stack
+		std::stack<std::pair<typename dfs<id_type>::vertex_type, 
+							 typename dfs<id_type>::vertex_type>> stack;
+		// artificial algorithm initializer edge
+		auto rootConnection = std::make_pair(root,root);
+		stack.push(rootConnection);
 
 		while (!stack.empty())
 		{
 			// pop current top vertex
-			auto currentVertex = stack.top();
+			auto neighbourConnection = stack.top();
 			stack.pop();
-
 			//DEBUG
-			std::cout << "Current vertex is [ " << currentVertex.Id() << " ]\n";
+			std::cout << "		- < [" << neighbourConnection.first.Id() << "], ["
+			<< neighbourConnection.second.Id() << "], ...> removed from stack\n"; 
 			//DEBUG
 
 			// if not discovered
-			if (!is_discovered(currentVertex))
+			if (!is_discovered(neighbourConnection.second))
 			{
 				//DEBUG
-				std::cout << "	Label vertex [ " << currentVertex.Id()
-						<< " ] as discovered with its parent: ["
-						<< parent.Id()
-						<< "]\n";
+				std::cout << "	Label current < [" 
+				<< neighbourConnection.first.Id() << "], ["
+				<< neighbourConnection.second.Id() << "] > as discovered\n";
 				//DEBUG
 
-				// discover
-				structure_[currentVertex] = parent;
+				// label as discovered
+				structure_.at(neighbourConnection.second) = neighbourConnection.first;
 
 				// proceed with children
-				for (auto& neighbour : graph_.GetNeighbours(currentVertex))
+				for (auto& neighbourEdge : pGraph_->GetNeighbours(neighbourConnection.second))
 				{
-					stack.push(neighbour.GetVertex(1));
-				}
-			}
+					//DEBUG
+					std::cout << "		+ < [" << neighbourEdge.GetVertex(0).Id() << "], ["
+					<< neighbourEdge.GetVertex(1).Id() << "] > added to stack\n"; 
+					//DEBUG
+					auto tmpPair = std::make_pair(neighbourEdge.GetVertex(0), neighbourEdge.GetVertex(1));
 
-			// update parent
-			parent = currentVertex;
+					stack.push(tmpPair);
+				}
+
+			}
 		}
 	}
 }

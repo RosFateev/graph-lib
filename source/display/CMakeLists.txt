@@ -12,6 +12,7 @@ add_subdirectory(resources)
 add_library(${lib_name} STATIC
     positioner.cpp
     drawer.cpp)
+    #outputter.cpp)
 
 
 target_link_libraries(${lib_name} PUBLIC

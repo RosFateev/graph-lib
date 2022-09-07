@@ -78,10 +78,14 @@ namespace component
 	class Edge
 	{		
 		using vertex_type 			= Vertex<id_type>;
-		using vertex_container 		= std::pair<const vertex_type&, const vertex_type&>;
-		using connection_property	= std::tuple<traits::edge_direction, int>;
 
 	public:
+
+		//------------------------------------------------------------------------------
+		/// @brief Default constructor.
+		///
+		//------------------------------------------------------------------------------
+		Edge();
 
 		//------------------------------------------------------------------------------
 		/// @brief Value constructor.
@@ -106,22 +110,6 @@ namespace component
 		///
 		//------------------------------------------------------------------------------
 		Edge(const Edge& edge);
-
-		//------------------------------------------------------------------------------
-		/// @brief Virtual destructor.
-		//------------------------------------------------------------------------------
-		virtual ~Edge();
-
-		//------------------------------------------------------------------------------
-		/// @brief Copy assignment operator.
-		///
-		/// @param[in] edge Edge to copy.
-		///
-		/// @return Reference to itself.
-		///
-		//------------------------------------------------------------------------------
-		const Edge&
-		operator=(const Edge& edge);
 
 		//------------------------------------------------------------------------------
 		/// @brief Get edge's vertex with specific index.
@@ -152,20 +140,77 @@ namespace component
 		virtual int
 		GetWeight() const;
 
+		//------------------------------------------------------------------------------
+		/// @brief Set edge weight.
+		///
+		/// @param[in] weight New weight.
+		///
+		//------------------------------------------------------------------------------
+		virtual void
+		SetWeight(int weight);
+
+		//------------------------------------------------------------------------------
+		/// @brief Get edge capacity.
+		///
+		/// @return Edge capacity.
+		///
+		//------------------------------------------------------------------------------
+		virtual int
+		GetCapacity() const;
+
+		//------------------------------------------------------------------------------
+		/// @brief Set edge capacity.
+		///
+		/// @param[in] capacity New capacity.
+		///
+		//------------------------------------------------------------------------------
+		virtual void
+		SetCapacity(int capacity);
+
+		//------------------------------------------------------------------------------
+		/// @brief Get edge flow.
+		///
+		/// @return Edge flow.
+		///
+		//------------------------------------------------------------------------------
+		virtual int
+		GetFlow() const;
+
+		//------------------------------------------------------------------------------
+		/// @brief Set edge flow.
+		///
+		/// @param[in] flow New flow.
+		///
+		//------------------------------------------------------------------------------
+		virtual void
+		SetFlow(int flow);
+
+
+	public:
+
+		/// @brief Invalid vertex constant.
+        static const Edge<id_type> invalidInstance_;
+
 
 	private:
 
-		//------------------------------------------------------------------------------
-		/// @brief Vertex container.
-		//------------------------------------------------------------------------------
-		vertex_container container_;
-		
-		//------------------------------------------------------------------------------
-		/// @brief Connection property.
-		///
-		/// (direction, weight) tuple describing connection between endpoints
-		//------------------------------------------------------------------------------
-		connection_property	property_;
+		/// @brief First endpoit vertex.
+		const vertex_type& first_;
+
+		/// @brief Second endpoit vertex.
+		const vertex_type& second_;
+
+		/// @brief Edge direction.
+		traits::edge_direction direction_;
+
+		/// @brief Edge weight.
+		int weight_;
+
+		/// @brief Edge capacity used in flow network algorithms.
+		int capacity_;
+
+		/// @brief Edge flow used in flow network algorithms.
+		int flow_;
 	};
 	
 } //	namespace component
@@ -195,12 +240,28 @@ namespace component
 	//
 	//------------------------------------------------------------------------------
 	template<class id_type>
+	Edge<id_type>::Edge() :	first_(Vertex<id_type>::invalidInstance_),
+							second_(Vertex<id_type>::invalidInstance_),
+							direction_(traits::edge_direction::none),
+							weight_(0),
+							capacity_(0)
+	{	}
+
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
 	Edge<id_type>::Edge(const typename Edge<id_type>::vertex_type& vertex1,
 						const typename Edge<id_type>::vertex_type& vertex2,
 						traits::edge_direction direction,
-						int inWeight) :	container_({ vertex1, vertex2}),
-										property_(std::make_tuple(direction,
-																  inWeight))
+						int weight) : 
+								first_(vertex1),
+								second_(vertex2),
+								direction_(direction),
+								weight_(weight),
+								capacity_(0)
 	{	}
 
 	//------------------------------------------------------------------------------
@@ -209,33 +270,12 @@ namespace component
 	//
 	//------------------------------------------------------------------------------
 	template<class id_type>
-	Edge<id_type>::Edge(const Edge<id_type>& edge) : container_(edge.container_),
-	                                              	 property_(edge.property_)
+	Edge<id_type>::Edge(const Edge<id_type>& edge) : first_(edge.first_),
+													 second_(edge.second_),
+													 direction_(edge.direction_),
+													 weight_(edge.weight_),
+													 capacity_(edge.capacity_)
 	{	}
-
-	//------------------------------------------------------------------------------
-	//
-	//  <Design related information>
-	//
-	//------------------------------------------------------------------------------
-	template<class id_type>
-	Edge<id_type>::~Edge()
-	{	}
-
-	//------------------------------------------------------------------------------
-	//
-	//  <Design related information>
-	//
-	//------------------------------------------------------------------------------
-	template<class id_type>
-	const Edge<id_type>&
-	Edge<id_type>::operator=(const Edge<id_type>& edge)
-	{
-		container_ 	= edge.container_,
-		property_ 	= edge.property_;
-
-		return *this;
-	}
 
 	//------------------------------------------------------------------------------
 	//
@@ -246,7 +286,7 @@ namespace component
 	const typename Edge<id_type>::vertex_type&
 	Edge<id_type>::GetVertex(int index) const
 	{
-		return (index == 0 ? container_.first : container_.second);
+		return (index == 0 ? first_ : second_);
 	}
 
 	//------------------------------------------------------------------------------
@@ -258,7 +298,7 @@ namespace component
 	traits::edge_direction
 	Edge<id_type>::GetDirection() const
 	{
-		return std::get<0>(property_);
+		return direction_;
 	}
 
 	//------------------------------------------------------------------------------
@@ -270,9 +310,69 @@ namespace component
 	int
 	Edge<id_type>::GetWeight() const
 	{
-		return std::get<1>(property_);
+		return weight_;
 	}
-	
+
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	void
+	Edge<id_type>::SetWeight(int weight)
+	{
+		weight_ = weight;
+	}
+
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	int
+	Edge<id_type>::GetCapacity() const
+	{
+		return capacity_;
+	}
+
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	void
+	Edge<id_type>::SetCapacity(int capacity)
+	{
+		capacity_ = capacity;
+	}
+
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	int
+	Edge<id_type>::GetFlow() const
+	{
+		return flow_;
+	}
+
+	//------------------------------------------------------------------------------
+	//
+	//  <Design related information>
+	//
+	//------------------------------------------------------------------------------
+	template<class id_type>
+	void
+	Edge<id_type>::SetFlow(int flow)
+	{
+		flow_ = flow;
+	}
+
 } //	namespace component
 
 

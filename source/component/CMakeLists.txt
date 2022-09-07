@@ -8,7 +8,8 @@ set(lib_name "component")
 #
 add_library(${lib_name} STATIC
     vertex-support.cpp
-    vertex.cpp)
+    vertex.cpp
+    edge.cpp)
 
 
 target_include_directories(${lib_name} PUBLIC

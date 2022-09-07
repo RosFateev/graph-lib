@@ -22,6 +22,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <cmath>                // asin, sqrt, pow
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
@@ -102,7 +103,7 @@ namespace output
     //
     //------------------------------------------------------------------------------
     Drawer::Drawer(sf::RenderWindow* pWindow) : pWindow_(pWindow),
-                                                vertexSize_(20.f),
+                                                vertexRadius_(20.f),
                                                 edgeThickness_(2),
                                                 palette_()
     {
@@ -118,7 +119,7 @@ namespace output
     //
     //------------------------------------------------------------------------------
     Drawer::Drawer(const Drawer& drawer) : pWindow_(drawer.pWindow_),
-                                           vertexSize_(drawer.vertexSize_),
+                                           vertexRadius_(drawer.vertexRadius_),
                                            edgeThickness_(2),
                                            palette_(drawer.palette_),
                                            font_(drawer.font_)
@@ -133,7 +134,7 @@ namespace output
     Drawer::operator=(const Drawer& drawer)
     {
         pWindow_ = drawer.pWindow_;
-        vertexSize_ = drawer.vertexSize_;
+        vertexRadius_ = drawer.vertexRadius_;
         edgeThickness_ = drawer.edgeThickness_,
         palette_ = drawer.palette_;
         font_ = drawer.font_;
@@ -173,25 +174,19 @@ namespace output
     void
     Drawer::DrawVertex(float x,
                        float y,
-                       const std::string& id)
+                       const std::string& id,
+                       sf::Color color)
     {
-        // prepare vertex shape
-        sf::CircleShape circle(vertexSize_);
-        circle.setOutlineThickness(vertexSize_ / 4.f);
-        circle.setOutlineColor(palette_.primaryColor_);
+        // draw vertex shape
+        sf::CircleShape circle(vertexRadius_);
+        circle.setOutlineThickness(vertexRadius_ / 4.f);
+        circle.setOutlineColor(color);
         circle.setPosition(x, y);
-
-        // prepare index
-        sf::Text text;
-        text.setFont(font_);
-        text.setString(id);
-        text.setFillColor(palette_.primaryColor_);
-        text.setCharacterSize(int(vertexSize_) + 10);
-        text.setPosition(x + 12.f, y);
         
-        // draw
         pWindow_->draw(circle);
-        pWindow_->draw(text);
+
+        // draw vertex id
+        DrawText(x, y, id, color);
     }
 
     //------------------------------------------------------------------------------
@@ -205,17 +200,116 @@ namespace output
                      float x2,
                      float y2,
                      component::traits::edge_direction direction,
-                     int weight)
+                     int weight,
+                     sf::Color color)
     {
-        // create edge
+        // draw edge core
         sf::Vertex edge[] =
         {
-            sf::Vertex(sf::Vector2f(x1 + vertexSize_, y1 + vertexSize_), palette_.primaryColor_),
-            sf::Vertex(sf::Vector2f(x2 + vertexSize_, y2 + vertexSize_), palette_.primaryColor_)
+            sf::Vertex(sf::Vector2f(x1 + vertexRadius_, y1 + vertexRadius_), color),
+            sf::Vertex(sf::Vector2f(x2 + vertexRadius_, y2 + vertexRadius_), color)
         };
 
-        // draw
         pWindow_->draw(edge, 2, sf::Lines);  // edge
+
+        // display weight
+        DrawText( (x1 + (x2 - x1)/2) - vertexRadius_, 
+                  (y1 + (y2 - y1)/2) - vertexRadius_,
+                  std::to_string(weight),
+                  color);
+
+
+        // directed edge
+        if (direction == component::traits::edge_direction::one_two)
+        {
+            sf::CircleShape indicator(vertexRadius_ / 2);
+            indicator.setFillColor(palette_.primaryColor_);
+
+            // consider 3 points for 2 vectors with a common point
+            float initial_x = x2;
+            float initial_y = y2;
+            
+            // to avoid float comparison
+            int x1Int = int(x1);
+            int y1Int = int(y1);
+            int x2Int = int(x2);
+            int y2Int = int(y2);
+            if (x2Int > x1Int)
+            {
+                if (y2Int > y1Int)
+                {
+                    initial_x -= vertexRadius_;
+                    initial_y -= vertexRadius_;
+                }
+                else if (y2Int == y1Int)
+                {
+                    initial_x -= vertexRadius_;
+                }
+                else
+                {   // y2Int < y1Int
+                    initial_x -= vertexRadius_;
+                    initial_y += vertexRadius_;
+                }
+            }
+            else if (x2Int == x1Int)
+            {
+                if (y2Int > y1Int)
+                {
+                    initial_y -= vertexRadius_;
+                }
+                else
+                {   // y2Int < y1Int
+                    initial_y += vertexRadius_;
+                }
+
+            }
+            else
+            {   // (x2Int < x1Int)
+                if (y2Int > y1Int)
+                {
+                    initial_x += vertexRadius_;
+                    initial_y -= vertexRadius_;
+                }
+                else if (y2Int == y1Int)
+                {
+                    initial_x += vertexRadius_;
+                }
+                else
+                {   // y2Int < y1Int
+                    initial_x += vertexRadius_;
+                    initial_y += vertexRadius_;
+                }
+
+            }
+
+            // set indicator position
+            indicator.setPosition(initial_x, initial_y);
+
+            pWindow_->draw(indicator);
+        }
+    }
+
+
+    //------------------------------------------------------------------------------
+    //
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------
+    void
+    Drawer::DrawText(float x,
+                     float y,
+                     const std::string& data,
+                     sf::Color color)
+    {
+        // prepare index
+        sf::Text text;
+        text.setFont(font_);
+        text.setString(data);
+        text.setFillColor(color);
+        text.setCharacterSize(int(vertexRadius_) + 10);
+        text.setPosition(x + 12.f, y);
+
+        pWindow_->draw(text);
     }
 
 } // namespace output
