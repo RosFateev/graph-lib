@@ -30,7 +30,8 @@
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
-#include <graph-lib/component/vertex.hpp>
+#include "graph-lib/component/vertex.hpp"	// component::Vertex
+#include "graph-lib/utility/print.hpp" 		// Debug printing
 
 
 //------------------------------------------------------------------------------
@@ -114,8 +115,8 @@ namespace algorithm
 		/// @return Reference to parent structure defining order.
 		///
 		//------------------------------------------------------------------------------
-		parent_structure&
-		get();
+		const parent_structure&
+		get() const;
 
 		//------------------------------------------------------------------------------
 		///
@@ -125,7 +126,7 @@ namespace algorithm
 		///
 		//------------------------------------------------------------------------------
 		const graph_type*
-		get_graph();
+		get_graph() const;
 
 
 	private:
@@ -238,8 +239,8 @@ namespace algorithm
 	//
 	//------------------------------------------------------------------------------
 	template<class id_type>
-	typename dfs<id_type>::parent_structure&
-	dfs<id_type>::get()
+	const typename dfs<id_type>::parent_structure&
+	dfs<id_type>::get() const
 	{
 		return structure_;
 	}
@@ -251,7 +252,7 @@ namespace algorithm
 	//------------------------------------------------------------------------------
 	template<class id_type>
 	const typename dfs<id_type>::graph_type*
-	dfs<id_type>::get_graph()
+	dfs<id_type>::get_graph() const
 	{
 		return pGraph_;
 	}
@@ -301,9 +302,11 @@ namespace algorithm
 			const typename dfs<id_type>::vertex_type& vertex)
 	{
 		//DEBUG
-		std::cout << "		< [" 
-			<< parent.Id() << "], ["
-			<< vertex.Id() << "] > current connection\n"; 
+		std::cout << "	DFS: Current connection<";
+		print_vertex<id_type>(parent);
+		std::cout << ", ";
+		print_vertex<id_type>(vertex);
+		std::cout << " >\n"; 
 		//DEBUG
 
 		// mark node as discovered
@@ -314,6 +317,12 @@ namespace algorithm
 		{
 			if (!is_discovered(neighbour.GetVertex(1)))
 			{
+				//DEBUG
+				std::cout << "		DFS:Proceed with ";
+				print_vertex<id_type>(neighbour.GetVertex(1));
+				std::cout << '\n';
+				//DEBUG
+
 				dfs_recursive(vertex, neighbour.GetVertex(1));
 			}
 		}
@@ -338,21 +347,23 @@ namespace algorithm
 
 		while (!stack.empty())
 		{
-			// pop current top vertex
+			// pop current top connection
 			auto neighbourConnection = stack.top();
 			stack.pop();
+
 			//DEBUG
-			std::cout << "		- < [" << neighbourConnection.first.Id() << "], ["
-			<< neighbourConnection.second.Id() << "], ...> removed from stack\n"; 
+			std::cout << "	DFS-stack: Current connection: < ";
+			print_vertex<id_type>(neighbourConnection.first);
+			std::cout << ", ";
+			print_vertex<id_type>(neighbourConnection.second);
+			std::cout <<  " >\n"; 
 			//DEBUG
 
 			// if not discovered
 			if (!is_discovered(neighbourConnection.second))
 			{
 				//DEBUG
-				std::cout << "	Label current < [" 
-				<< neighbourConnection.first.Id() << "], ["
-				<< neighbourConnection.second.Id() << "] > as discovered\n";
+				std::cout << "		Label current connection as discovered\n";
 				//DEBUG
 
 				// label as discovered
@@ -362,9 +373,13 @@ namespace algorithm
 				for (auto& neighbourEdge : pGraph_->GetNeighbours(neighbourConnection.second))
 				{
 					//DEBUG
-					std::cout << "		+ < [" << neighbourEdge.GetVertex(0).Id() << "], ["
-					<< neighbourEdge.GetVertex(1).Id() << "] > added to stack\n"; 
+					std::cout << "		DFS-stack: Add to stack < ";
+					print_vertex<id_type>(neighbourEdge.GetVertex(0));
+					std::cout << ", ";
+					print_vertex<id_type>(neighbourEdge.GetVertex(1));
+					std::cout << " >\n";
 					//DEBUG
+
 					auto tmpPair = std::make_pair(neighbourEdge.GetVertex(0), neighbourEdge.GetVertex(1));
 
 					stack.push(tmpPair);

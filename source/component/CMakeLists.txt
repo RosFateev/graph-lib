@@ -13,4 +13,4 @@ add_library(${lib_name} STATIC
 
 
 target_include_directories(${lib_name} PUBLIC
-    ${PROJECT_SOURCE_DIR}/../include)
+    ${PROJECT_SOURCE_DIR}/include)

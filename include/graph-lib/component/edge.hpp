@@ -97,11 +97,18 @@ namespace component
         /// @param[in] direction How vertices are connected.
         ///
         /// @param[in] weight Edge weight.
+        ///
+        /// @param[in] capacity Edge flow capacity.
+        ///
+        /// @param[in] flow Edge current flow.
+        ///
 		//------------------------------------------------------------------------------
 		Edge(const vertex_type& vertex1, 
 			 const vertex_type& vertex2,
 			 traits::edge_direction direction = traits::edge_direction::none, 
-			 int weight = 0);
+			 int weight = 0,
+			 int capacity = 0,
+			 int flow = 0);
 
 		//------------------------------------------------------------------------------
 		/// @brief Copy constructor.
@@ -244,7 +251,8 @@ namespace component
 							second_(Vertex<id_type>::invalidInstance_),
 							direction_(traits::edge_direction::none),
 							weight_(0),
-							capacity_(0)
+							capacity_(0),
+							flow_(0)
 	{	}
 
 	//------------------------------------------------------------------------------
@@ -256,12 +264,15 @@ namespace component
 	Edge<id_type>::Edge(const typename Edge<id_type>::vertex_type& vertex1,
 						const typename Edge<id_type>::vertex_type& vertex2,
 						traits::edge_direction direction,
-						int weight) : 
+						int weight,
+						int capacity,
+						int flow) : 
 								first_(vertex1),
 								second_(vertex2),
 								direction_(direction),
 								weight_(weight),
-								capacity_(0)
+								capacity_(capacity),
+								flow_(flow)
 	{	}
 
 	//------------------------------------------------------------------------------
@@ -274,7 +285,8 @@ namespace component
 													 second_(edge.second_),
 													 direction_(edge.direction_),
 													 weight_(edge.weight_),
-													 capacity_(edge.capacity_)
+													 capacity_(edge.capacity_),
+													 flow_(edge.flow_)
 	{	}
 
 	//------------------------------------------------------------------------------

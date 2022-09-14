@@ -29,6 +29,7 @@
 #include <list>
 #include <map>
 #include <algorithm>                // std::for_each, std::find
+#include <iostream>                 // Debug
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
@@ -167,12 +168,32 @@ namespace implementation
         ///
         /// @param[in] weight Edge weight.
         ///
+        /// @param[in] capacity Edge flow capacity.
+        ///
+        /// @param[in] flow Edge current flow.
+        ///
         //------------------------------------------------------------------------------
         void
         AddEdge(const vertex_type& vertex1,
                 const vertex_type& vertex2,
                 component::traits::edge_direction direction,
-                int weight);
+                int weight,
+                int capacity,
+                int flow);
+
+        //------------------------------------------------------------------------------
+        /// @brief Get edge for given vertices, direction and weight.
+        ///
+        /// @param[in] vertex1 First vertex.
+        ///
+        /// @param[in] vertex2 Second vertex.
+        ///
+        /// @return Desired edge (or invalid edge constant).
+        ///
+        //------------------------------------------------------------------------------
+        edge_type&
+        GetEdge(const vertex_type& vertex1,
+                const vertex_type& vertex2);
         
         //------------------------------------------------------------------------------
         /// @brief Get edge for given vertices, direction and weight.
@@ -211,6 +232,17 @@ namespace implementation
                    const vertex_type& vertex2,
                    component::traits::edge_direction direction,
                    int weight);
+
+        //------------------------------------------------------------------------------
+        /// @brief Get neighbours of the given vertex.
+        ///
+        /// @param[in] vertex Vertex.
+        ///
+        /// @return Edges to neighbours.
+        ///
+        //------------------------------------------------------------------------------
+        edge_container&
+        GetNeighbours(const vertex_type& vertex);
 
         //------------------------------------------------------------------------------
         /// @brief Get neighbours of the given vertex.
@@ -406,8 +438,7 @@ namespace implementation
             const typename AdjacencyList<id_type>::vertex_type& vertex)
     {
         //DEBUG
-        std::cout << "AdjacencyList<id_type>::AddVertex(vertex_type):" << '\n';
-        std::cout << "Adding vertex with index - " << vertex.Id() << std::endl;
+        std::cout << "Adding vertex with id " << vertex.Id() << std::endl;
         //DEBUG
 
         list_[vertex] = typename AdjacencyList<id_type>::edge_container();
@@ -422,9 +453,6 @@ namespace implementation
     const typename AdjacencyList<id_type>::vertex_type&
     AdjacencyList<id_type>::GetVertex(id_type id) const
     {
-        //DEBUG
-        std::cout << "AdjacencyList<id_type>::GetVertex( " << id << "):" << '\n';
-        //DEBUG
         return GetStructureIterator(
             typename AdjacencyList<id_type>::vertex_type(id))->first;
     }
@@ -466,7 +494,7 @@ namespace implementation
         const typename AdjacencyList<id_type>::vertex_type& vertex)
     {
         //DEBUG
-        std::cout << "AdjacencyList<id_type>::RemoveVertex( " << vertex.Id() << "):" << '\n';
+        std::cout << "Remove vertex with id " << vertex.Id() << "):" << '\n';
         //DEBUG
 
         // erase all edges which contain this vertex
@@ -498,15 +526,18 @@ namespace implementation
             const typename AdjacencyList<id_type>::vertex_type& vertex1,
             const typename AdjacencyList<id_type>::vertex_type& vertex2,
             component::traits::edge_direction direction,
-            int weight)
+            int weight,
+            int capacity,
+            int flow)
     {
         //DEBUG
-        std::cout << "AdjacencyList<id_type>::AddEdge( " << vertex1.Id() << ", " << vertex2.Id() << "):" << '\n';
+        std::cout << "Add edge e=( " << vertex1.Id() << ", " << vertex2.Id() << ")\n";
         //DEBUG
 
         list_.at(vertex1).push_back(
             typename AdjacencyList<id_type>::edge_type(vertex1, vertex2,
-                                                       direction, weight));
+                                                       direction, weight,
+                                                       capacity, flow));
 
         // undirected case: push reversed
         if (direction == component::traits::edge_direction::none)
@@ -517,8 +548,34 @@ namespace implementation
             
             list_.at(vertex2).push_back(
                 typename AdjacencyList<id_type>::edge_type(vertex2, vertex1,
-                                                           direction, weight));
+                                                           direction, weight,
+                                                           capacity, flow));
         }
+    }
+
+    //------------------------------------------------------------------------------
+    //
+    //  <Design related information>
+    //  
+    //------------------------------------------------------------------------------
+    template<class id_type>
+    typename AdjacencyList<id_type>::edge_type&
+    AdjacencyList<id_type>::GetEdge(
+            const typename AdjacencyList<id_type>::vertex_type& vertex1,
+            const typename AdjacencyList<id_type>::vertex_type& vertex2)
+    {
+        auto candidate = std::find_if(list_.at(vertex1).begin(), list_.at(vertex1).end(),
+            [&vertex2](const auto& edge)
+            {
+                return (edge.GetVertex(1) == vertex2);
+            });
+
+        if (candidate != list_.at(vertex1).end())
+        {
+            return *candidate;
+        }
+
+        throw std::out_of_range("Graph contains no such edge");
     }
 
     //------------------------------------------------------------------------------
@@ -534,11 +591,6 @@ namespace implementation
             component::traits::edge_direction direction,
             int weight) const
     {
-        //DEBUG
-        std::cout << "AdjacencyList<id_type>::GetEdge( " << vertex1.Id() << ", " << vertex2.Id()
-                << ", direction, " << weight << "):" << '\n';
-        //DEBUG
-
         auto candidate = std::find_if(list_.at(vertex1).begin(), list_.at(vertex1).end(),
             [&vertex2, &direction, &weight](const auto& edge)
             {
@@ -566,10 +618,6 @@ namespace implementation
             const typename AdjacencyList<id_type>::vertex_type& vertex1,
             const typename AdjacencyList<id_type>::vertex_type& vertex2)
     {
-        //DEBUG
-        std::cout << "Private AdjacencyList<id_type>::RemoveEdge( " << vertex1.Id() << ", " << vertex2.Id() << "):" << '\n';
-        //DEBUG
-
         // find edge - manual because GetEdge returns edge reference, not iterator that is needed to erase
         auto candidate = std::find_if(list_.at(vertex1).begin(), list_.at(vertex1).end(),
             [&vertex2](const auto& edge)
@@ -596,11 +644,6 @@ namespace implementation
             component::traits::edge_direction direction,
             int weight)
     {
-        //DEBUG
-        std::cout << "AdjacencyList<id_type>::RemoveEdge( " << vertex1.Id() << ", " << vertex2.Id()
-                << " direction, " << weight << "):" << '\n';
-        //DEBUG
-
         // find edge
         auto candidateMain = std::find_if(list_.at(vertex1).begin(), list_.at(vertex1).end(),
             [&vertex2, &direction, &weight](const auto& edge)
@@ -636,6 +679,19 @@ namespace implementation
                 list_.at(vertex2).erase(candidateReverse);
             }
         }
+    }
+
+    //------------------------------------------------------------------------------
+    //
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------
+    template<class id_type>
+    typename AdjacencyList<id_type>::edge_container&
+    AdjacencyList<id_type>::GetNeighbours(
+            const typename AdjacencyList<id_type>::vertex_type& vertex)
+    {
+        return list_.at(vertex);
     }
 
     //------------------------------------------------------------------------------
@@ -708,10 +764,6 @@ namespace implementation
     int
     AdjacencyList<id_type>::Size() const
     {
-        //DEBUG
-        std::cout << "AdjacencyList<id_type>::Size():" << '\n';
-        //DEBUG
-
         return list_.size();
     }
 
@@ -725,8 +777,6 @@ namespace implementation
     AdjacencyList<id_type>::GetStructureIterator(
             const typename AdjacencyList<id_type>::vertex_type& vertex)
     {
-        std::cout << "Inside GetStructureIterator\n";
-
         auto candidate = list_.find(vertex);
 
         if (candidate != list_.end())
@@ -747,8 +797,6 @@ namespace implementation
     AdjacencyList<id_type>::GetStructureIterator(
             const typename AdjacencyList<id_type>::vertex_type& vertex) const
     {
-        std::cout << "Inside const GetStructureIterator\n";
-
         auto candidate = list_.find(vertex);
 
         if (candidate != list_.end())

@@ -33,6 +33,7 @@
 // e.g.: #include "IncludeFile.h"   // MyType_t
 #include "graph-lib/display/drawer/positioner.h"    // Positioner
 #include "graph-lib/display/drawer/drawer.h"        // Drawer
+#include "graph-lib/utility/print.hpp"      // Debug printing
 //#include "graph-lib/graph.hpp"
 
 
@@ -336,11 +337,9 @@ namespace output
                     [this](const auto& edge)
                     {
                         //DEBUG
-                        std::cout << "Drawing < ["
-                            << edge.GetVertex(0).Id() << "] ["
-                            << edge.GetVertex(1).Id() << ", "
-                            << (edge.GetDirection() == component::traits::edge_direction::none ? "---" : "-->")
-                            << ", " << edge.GetWeight() << "> with primary color\n";
+                        std::cout << "  Drawing ";
+                        print_edge<id_type>(edge);
+                        std::cout << " with primary color\n";
                         //DEBUG
 
                         // draw edge
@@ -391,12 +390,9 @@ namespace output
                         }
 
                         //DEBUG
-                        std::cout << "Drawing < ["
-                            << edge.GetVertex(0).Id() << "] ["
-                            << edge.GetVertex(1).Id() << ", "
-                            << (edge.GetDirection() == component::traits::edge_direction::none ? "---, " : "-->, ")
-                            << edge.GetWeight()
-                            << "> with "
+                        std::cout << "  Drawing ";
+                        print_edge<id_type>(edge);
+                        std::cout << "> with "
                             << (edgeColor == drawer_.GetPalette().primaryColor_ ? "primary" : "secondary")
                             << " color\n";
                         //DEBUG
@@ -423,10 +419,20 @@ namespace output
     Outputter<id_type>::DrawVertices(
             const typename Outputter<id_type>::graph_type& graph)
     {
+        //DEBUG
+        std::cout << "DrawVertices()\n";
+        //DEBUG
+
         // iterate over <vertex, edge_list> pairs
         std::for_each(graph.cbegin(), graph.cend(),
             [this](const auto& tuple)
             {
+                //DEBUG
+                std::cout << "  Drawing ";
+                print_vertex<id_type>(tuple.first);
+                std::cout << " vertex\n";
+                //DEBUG
+
                 // convert id_type id to string
                 std::stringstream converter;
                 std::string stringId;

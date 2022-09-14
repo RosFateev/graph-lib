@@ -25,11 +25,12 @@
 //------------------------------------------------------------------------------
 // System
 // e.g.: #include <iostream>        // stdout
-#include <queue>
+#include <limits>               // std::numeric_limits
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
-#include "graph-lib/algorithm/traversal/bfs.hpp"    // bfs
+#include "graph-lib/algorithm/traversal/bfs.hpp"    // algorithm::bfs
+#include "graph-lib/utility/print.hpp"              // Debug printing
 
 
 //------------------------------------------------------------------------------
@@ -67,7 +68,7 @@
 namespace algorithm
 {
     //------------------------------------------------------------------------------
-    /// @brief Edmonds-Karp implementation.
+    /// @brief Edmonds-Karp algorithm implementation.
     ///
     //------------------------------------------------------------------------------
     template<class id_type>
@@ -75,9 +76,6 @@ namespace algorithm
     {
         using vertex_type           = component::Vertex<id_type>;
         using edge_type             = component::Edge<id_type>;
-        using parent_structure      = std::map<vertex_type,
-                                               vertex_type,
-                                               component::support::vertex_less<id_type>>;
         using graph_type            = graph::Graph<id_type>;
 
     public:
@@ -89,7 +87,7 @@ namespace algorithm
         /// @param[in] pGraph Input graph pointer.
         ///
         //------------------------------------------------------------------------------
-        edmonds_karp(const graph_type* pGraph);
+        edmonds_karp(graph_type * const pGraph);
 
         //------------------------------------------------------------------------------
         ///
@@ -108,11 +106,11 @@ namespace algorithm
         ///
         /// @brief Get algorithm execution results.
         ///
-        /// @return Reference to parent structure defining order.
+        /// @return Flow value.
         ///
         //------------------------------------------------------------------------------
-        const parent_structure&
-        get();
+        int
+        get() const;
 
         //------------------------------------------------------------------------------
         ///
@@ -122,10 +120,18 @@ namespace algorithm
         ///
         //------------------------------------------------------------------------------
         const graph_type*
-        get_graph();
+        get_graph() const;
 
 
     private:
+
+        //------------------------------------------------------------------------------
+        ///
+        /// @brief Reset parent structure.
+        ///
+        //------------------------------------------------------------------------------
+        void
+        flush_structure();
 
         //------------------------------------------------------------------------------
         ///
@@ -144,11 +150,11 @@ namespace algorithm
 
     private:
 
-        /// @brief Parent structure.
-        parent_structure structure_;
+        /// @brief Max flow possible to send over the network.
+        int flow_;
 
-        /// @brief Graph.
-        const graph_type* pGraph_;
+        /// @brief Graph pointer.
+        graph_type * const pGraph_;
     };
 
 } // namespace algorithm
@@ -158,22 +164,6 @@ namespace algorithm
 //------------------------------------------------------------------------------
 // Function declarations
 //------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-///
-/// @brief <Description>
-///
-/// @param[in] <name> <Description>
-///
-/// @param[in,out] <name> <Description>
-///
-/// @param[out] <name> <Description>
-///
-/// @return <Description>
-/// @retval <Value i> <Description>
-///
-//------------------------------------------------------------------------------
-<data type> <function name>(...);
 
 
 //------------------------------------------------------------------------------
@@ -185,6 +175,7 @@ namespace algorithm
 //------------------------------------------------------------------------------
 // Function definitions
 //------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 //
@@ -199,8 +190,9 @@ namespace algorithm
     //
     //------------------------------------------------------------------------------
     template<class id_type>
-    edmonds_karp<id_type>::dfs(
-            const typename edmonds_karp<id_type>::graph_type* pGraph) : pGraph_(pGraph)
+    edmonds_karp<id_type>::edmonds_karp(
+            typename edmonds_karp<id_type>::graph_type * const pGraph) : pGraph_(pGraph),
+                                                                         flow_(0)
     {
         flush_structure();
     }
@@ -226,10 +218,10 @@ namespace algorithm
     //
     //------------------------------------------------------------------------------
     template<class id_type>
-    const typename edmonds_karp<id_type>::parent_structure&
-    edmonds_karp<id_type>::get()
+    int
+    edmonds_karp<id_type>::get() const
     {
-        return structure_;
+        return flow_;
     }
 
     //------------------------------------------------------------------------------
@@ -239,7 +231,7 @@ namespace algorithm
     //------------------------------------------------------------------------------
     template<class id_type>
     const typename edmonds_karp<id_type>::graph_type*
-    edmonds_karp<id_type>::get_graph()
+    edmonds_karp<id_type>::get_graph() const
     {
         return pGraph_;
     }
@@ -253,33 +245,18 @@ namespace algorithm
     void
     edmonds_karp<id_type>::flush_structure()
     {
-        // initialize parent structure: insert <vertex, invalid_vertex> entries,
-        // where vertex - vertex of the graph
-        std::for_each(pGraph_->cbegin(), pGraph_->cend(),
-            [this](const auto& tuple)
+        // initialize edge flow
+        std::for_each(pGraph_->begin(), pGraph_->end(),
+            [](auto& tuple)
             {
-                structure_[tuple.first] = 
-                    component::Vertex<id_type>::invalidInstance_;
+                std::for_each(tuple.second.begin(), tuple.second.end(),
+                    [](auto& edge)
+                    {
+                        edge.SetFlow(0);
+                    });
             });
     }
 
-
-
-
-
-    //------------------------------------------------------------------------------
-    //
-    //  <Design related information>
-    //
-    //------------------------------------------------------------------------------
-    template<class id_type>
-    bool
-    edmonds_karp<id_type>::is_discovered(const typename edmonds_karp<id_type>::vertex_type& vertex)
-    {
-        // Discovered: parent structure contains valid entry for the second endpoint
-        return (structure_.at(vertex) != 
-                component::Vertex<id_type>::invalidInstance_);
-    }
 
     //------------------------------------------------------------------------------
     //
@@ -293,29 +270,69 @@ namespace algorithm
             const typename edmonds_karp<id_type>::vertex_type& sink)
     {
         int flow = 0;
+        int incrementingFlow = 0;
 
         while (true)
         {
-            // run BFS
+            //DEBUG
+            std::cout << "Run BFS\n";
+            //DEBUG
+
+            // run bfs_flow()
             bfs<id_type> bfsObj(pGraph_);
-            bfsObj.run(source);
+            bfsObj.run(source, "flow");
+
+            //DEBUG
+            print_traversal_result<id_type>(bfsObj.get());
+            //DEBUG
 
             // augmenting path found
-            if (bfsObj.get().at(sink) != NULL)
+            if (bfsObj.get().at(sink) != component::Vertex<id_type>::invalidInstance_)
             {
-                int possibleFlow = INT_MAX;
-                // determine max flow possible to send
-                for (auto edge : predecessor sink)
-                {
-                    if (edge != NULL)
-                }
-                // "send" this flow
-                for (;;)
-                {
+                //DEBUG
+                std::cout << "Compute network flow increase\n";
+                //DEBUG
 
+                incrementingFlow = std::numeric_limits<int>::max();
+                // determine max possible increase to send via augmenting path edges found by BFS
+                auto current = sink;
+                while (current != source)
+                {
+                    // fetch connection edge
+                    auto& edge = pGraph_->GetEdge(
+                        bfsObj.get().at(current), current);
+
+                    // check if incrementing flow can be updated
+                    incrementingFlow = std::min(
+                                incrementingFlow,
+                                edge.GetCapacity() - edge.GetFlow());
+
+                    // update current
+                    current = edge.GetVertex(0);
                 }
+
+                //DEBUG
+                std::cout << "Improving flow has value: " << incrementingFlow << '\n';
+                //DEBUG
+
+                // increment flow in all edges of augmenting path found by BFS
+                current = sink;
+                while (current != source)
+                {
+                    auto& edge = pGraph_->GetEdge(bfsObj.get().at(current), current);
+                    // increment flow
+                    edge.SetFlow(edge.GetFlow() + incrementingFlow);
+
+                    // update current
+                    current = edge.GetVertex(0);
+                }
+
                 // update
-                flow += possibleFlow;
+                flow += incrementingFlow;
+
+                //DEBUG
+                print_graph<id_type>(*pGraph_);
+                //DEBUG
             }
             else
             {
@@ -323,9 +340,10 @@ namespace algorithm
                 break;
             }
         }
-        
+
+        flow_ = flow;
     }
-}
+} // namespace algorithm
 
 
 

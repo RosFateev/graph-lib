@@ -107,7 +107,7 @@ namespace output
                                                 edgeThickness_(2),
                                                 palette_()
     {
-        if (!font_.loadFromFile("resources/Calibri-Regular.ttf"))
+        if (!font_.loadFromFile("graph-lib/source/display/resources/Calibri-Regular.ttf"))
         {
             std::cout << "font wasn't loaded" << std::endl;
         }

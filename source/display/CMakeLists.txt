@@ -21,4 +21,4 @@ target_link_libraries(${lib_name} PUBLIC
     sfml-window
     sfml-system)
 target_include_directories(${lib_name} PUBLIC
-    ${PROJECT_SOURCE_DIR}/../include)
+    ${PROJECT_SOURCE_DIR}/include)
