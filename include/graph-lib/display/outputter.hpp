@@ -33,6 +33,7 @@
 // e.g.: #include "IncludeFile.h"   // MyType_t
 #include "graph-lib/display/drawer/positioner.h"    // Positioner
 #include "graph-lib/display/drawer/drawer.h"        // Drawer
+#include "graph-lib/utility/print.hpp"      // Debug printing
 //#include "graph-lib/graph.hpp"
 
 
@@ -85,8 +86,12 @@ namespace output
     template<class id_type>
     class Outputter
     {
-
+        using vertex_type           = component::Vertex<id_type>;
+        using edge_type             = component::Edge<id_type>;
         using graph_type            = graph::Graph<id_type>;
+        using algorithm_result_type = std::map<vertex_type,
+                                               vertex_type,
+                                               component::support::vertex_less<id_type>>;
 
     public:
 
@@ -97,15 +102,16 @@ namespace output
         Outputter();
 
         //------------------------------------------------------------------------------
-        /// @brief Registers graph instance.
+        /// @brief Display object.
         ///
         /// @param[in] graph Graph to display.
         ///
-        /// @return Reference to this object.
+        /// @param[in] pAlgResult Pointer to algorithm results to display with graph.
         ///
         //------------------------------------------------------------------------------
-        Outputter&
-        operator<<(graph_type& graph);
+        void
+        Display(graph_type& graph,
+                const algorithm_result_type* pAlgResult = nullptr);
 
 
     private:
@@ -119,14 +125,49 @@ namespace output
         void
         GetCoordinates(graph_type& graph);
 
+
         //------------------------------------------------------------------------------
-        /// @brief Draw graph.
+        /// @brief Draw graph and associated algorithm.
         ///
-        /// @param[in] graph Graph to display.
+        /// @param[in] graph Graph to draw.
+        ///
+        /// @param[in] pAlgResult Pointer to algorithm results to draw with graph.
         ///
         //------------------------------------------------------------------------------
         void
-        DrawInstance(const graph_type& graph);
+        Draw(const graph_type& graph,
+             const algorithm_result_type* pAlgResult);
+
+
+        //------------------------------------------------------------------------------
+        /// @brief Draw graph's edges.
+        ///
+        /// @param[in] graph Graph, which edges to draw.
+        ///
+        //------------------------------------------------------------------------------
+        void DrawEdges(const graph_type& graph);
+
+
+        //------------------------------------------------------------------------------
+        /// @brief Draw graph's edges affected by algorithm.
+        ///
+        /// @param[in] graph Graph, which edges to draw.
+        ///
+        /// @param[in] pAlgResult Pointer to algorithm highlighted edges of a graph.
+        ///
+        //------------------------------------------------------------------------------
+        void DrawEdges(const graph_type& graph,
+                       const algorithm_result_type* pAlgResult);
+
+        //------------------------------------------------------------------------------
+        /// @brief Draw graph's vertices.
+        ///
+        /// @param[in] graph Graph, which vertices to draw.
+        ///
+        //------------------------------------------------------------------------------
+        void DrawVertices(const graph_type& graph);
+
+        
 
 
     private:
@@ -168,10 +209,10 @@ namespace output
     //
     //------------------------------------------------------------------------------
     template<class id_type>
-    Outputter<id_type>::Outputter() : width_(1200.f),
-                                      height_(800.f),
+    Outputter<id_type>::Outputter() : width_(800.f),
+                                      height_(600.f),
                                       sectorCount_(1),
-                                      positioner_(0, 0.f, 0.f, 1200.f, 800.f),
+                                      positioner_(0, 0.f, 0.f, 800.f, 600.f),
                                       drawer_(nullptr)
     {   }
 
@@ -183,8 +224,10 @@ namespace output
     //
     //------------------------------------------------------------------------------
     template<class id_type>
-    Outputter<id_type>&
-    Outputter<id_type>::operator<<(typename Outputter<id_type>::graph_type& graph)
+    void
+    Outputter<id_type>::Display(
+            typename Outputter<id_type>::graph_type& graph,
+            const typename Outputter<id_type>::algorithm_result_type* pAlgResult)
     {
         // create SFML window instance for input graph
         sf::RenderWindow window(sf::VideoMode(width_, height_), "Current graph");
@@ -200,10 +243,26 @@ namespace output
         // generate coordinates
         GetCoordinates(graph);
 
+        // Printing is not interactive - try to print stuff once
+        // clean canvas
+        drawer_.GetWindow().clear(drawer_.GetPalette().backgroundColor_);
         // draw graph
-        DrawInstance(graph);
+        Draw(graph, pAlgResult);
+        // display window 
+        drawer_.GetWindow().display();
 
-        return *this;
+        // display graph event loop
+        while (drawer_.GetWindow().isOpen())
+        {
+            // add some more sophisticated event handling
+            sf::Event event;
+            while (drawer_.GetWindow().pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                    drawer_.GetWindow().close();
+            }
+        }
+
     }
 
     //------------------------------------------------------------------------------
@@ -228,6 +287,32 @@ namespace output
             });
     }
 
+    //------------------------------------------------------------------------------
+    //
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------
+    template<class id_type>
+    void
+    Outputter<id_type>::Draw(
+            const typename Outputter<id_type>::graph_type& graph,
+            const typename Outputter<id_type>::algorithm_result_type* pAlgResult)
+    {
+        // draw graph edges
+        if (pAlgResult == nullptr)
+        {
+            // no algorithm provided
+            DrawEdges(graph);
+        }
+        else
+        {
+            DrawEdges(graph, pAlgResult);
+        }
+        
+
+        // draw graph vertices
+        DrawVertices(graph);
+    }
 
 
     //------------------------------------------------------------------------------
@@ -237,59 +322,128 @@ namespace output
     //------------------------------------------------------------------------------
     template<class id_type>
     void
-    Outputter<id_type>::DrawInstance(const typename Outputter<id_type>::graph_type& graph)
+    Outputter<id_type>::DrawEdges(
+            const typename Outputter<id_type>::graph_type& graph)
     {
-        //event loop
-        while (drawer_.GetWindow().isOpen())
-        {
-            // add some more sophisticated event handling
-            sf::Event event;
-            while (drawer_.GetWindow().pollEvent(event))
+        //DEBUG
+        std::cout << "DrawEdges()\n";
+        //DEBUG
+
+        std::for_each(graph.cbegin(), graph.cend(),
+            [this](const auto& tuple)
             {
-                if (event.type == sf::Event::Closed)
-                    drawer_.GetWindow().close();
-            }
+                // iterate over edge_list
+                std::for_each(tuple.second.begin(), tuple.second.end(),
+                    [this](const auto& edge)
+                    {
+                        //DEBUG
+                        std::cout << "  Drawing ";
+                        print_edge<id_type>(edge);
+                        std::cout << " with primary color\n";
+                        //DEBUG
 
-            // clean canvas
-            drawer_.GetWindow().clear(drawer_.GetPalette().backgroundColor_);
+                        // draw edge
+                        drawer_.DrawEdge(edge.GetVertex(0).Coordinate(0),
+                                         edge.GetVertex(0).Coordinate(1),
+                                         edge.GetVertex(1).Coordinate(0),
+                                         edge.GetVertex(1).Coordinate(1),
+                                         edge.GetDirection(),
+                                         edge.GetWeight(),
+                                         drawer_.GetPalette().primaryColor_);
+                    });
+            });
+    }
 
-            // iterate over <vertex, edge_list> pairs
-            std::for_each(graph.cbegin(), graph.cend(),
-                [this](const auto& tuple)
-                {
-                    // iterate over edge_list
-                    std::for_each(tuple.second.begin(), tuple.second.end(),
-                        [this](const auto& edge)
+
+    //------------------------------------------------------------------------------
+    //
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------
+    template<class id_type>
+    void
+    Outputter<id_type>::DrawEdges(
+            const typename Outputter<id_type>::graph_type& graph,
+            const typename Outputter<id_type>::algorithm_result_type* pAlgResult)
+    {
+        //DEBUG
+        std::cout << "DrawEdges(...,algorithm)\n";
+        //DEBUG
+
+        // variables used
+        sf::Color edgeColor;
+
+        std::for_each(graph.cbegin(), graph.cend(),
+            [this, &pAlgResult, &edgeColor](const auto& tuple)
+            {
+                std::for_each(tuple.second.begin(), tuple.second.end(),
+                    [this, &pAlgResult, &edgeColor](const auto& edge)
+                    {
+                        if ( (pAlgResult->at(edge.GetVertex(1)) == edge.GetVertex(0)) ||
+                             (pAlgResult->at(edge.GetVertex(0)) == edge.GetVertex(1)))
                         {
-                            // draw edge
-                            drawer_.DrawEdge(edge.GetVertex(0).Coordinate(0),
-                                             edge.GetVertex(0).Coordinate(1),
-                                             edge.GetVertex(1).Coordinate(0),
-                                             edge.GetVertex(1).Coordinate(1),
-                                             edge.GetDirection(),
-                                             edge.GetWeight());
-                        });
-                });
+                            edgeColor = drawer_.GetPalette().secondaryColor_;
+                        }
+                        else
+                        {
+                            edgeColor = drawer_.GetPalette().primaryColor_;
+                        }
 
-            // iterate over <vertex, edge_list> pairs
-            std::for_each(graph.cbegin(), graph.cend(),
-                [this](const auto& tuple)
-                {
-                    // convert id_type id to string
-                    std::stringstream converter;
-                    std::string stringId;
-                    converter << tuple.first.Id();
-                    converter >> stringId;
+                        //DEBUG
+                        std::cout << "  Drawing ";
+                        print_edge<id_type>(edge);
+                        std::cout << "> with "
+                            << (edgeColor == drawer_.GetPalette().primaryColor_ ? "primary" : "secondary")
+                            << " color\n";
+                        //DEBUG
 
-                    // drqw vertex
-                    drawer_.DrawVertex(tuple.first.Coordinate(0),
-                                       tuple.first.Coordinate(1),
-                                       stringId);
-                });
-                
-            // display graph 
-            drawer_.GetWindow().display();
-        }
+                        // draw edge
+                        drawer_.DrawEdge(edge.GetVertex(0).Coordinate(0),
+                                         edge.GetVertex(0).Coordinate(1),
+                                         edge.GetVertex(1).Coordinate(0),
+                                         edge.GetVertex(1).Coordinate(1),
+                                         edge.GetDirection(),
+                                         edge.GetWeight(),
+                                         edgeColor);
+                    });
+            });
+    }
+
+    //------------------------------------------------------------------------------
+    //
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------
+    template<class id_type>
+    void
+    Outputter<id_type>::DrawVertices(
+            const typename Outputter<id_type>::graph_type& graph)
+    {
+        //DEBUG
+        std::cout << "DrawVertices()\n";
+        //DEBUG
+
+        // iterate over <vertex, edge_list> pairs
+        std::for_each(graph.cbegin(), graph.cend(),
+            [this](const auto& tuple)
+            {
+                //DEBUG
+                std::cout << "  Drawing ";
+                print_vertex<id_type>(tuple.first);
+                std::cout << " vertex\n";
+                //DEBUG
+
+                // convert id_type id to string
+                std::stringstream converter;
+                std::string stringId;
+                converter << tuple.first.Id();
+                converter >> stringId;
+                // drqw vertex
+                drawer_.DrawVertex(tuple.first.Coordinate(0),
+                                   tuple.first.Coordinate(1),
+                                   stringId,
+                                   drawer_.GetPalette().primaryColor_);
+            });
     }
 
 } //    namespace output

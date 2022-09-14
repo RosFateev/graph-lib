@@ -3,11 +3,10 @@
 
 # copy resources
 add_custom_command(
-    OUTPUT "${CMAKE_BINARY_DIR}/resources/"
+    OUTPUT "${CMAKE_BINARY_DIR}/graph-lib/source/display/resources/Calibri-Regular.ttf"
     COMMAND "cp"
-    ARGS "-r"
-         "${PROJECT_SOURCE_DIR}/display/resources/"
-         "${CMAKE_BINARY_DIR}/"
+    ARGS "${PROJECT_SOURCE_DIR}/source/display/resources/Calibri-Regular.ttf"
+         "${CMAKE_BINARY_DIR}/graph-lib/source/display/resources/Calibri-Regular.ttf"
     COMMENT "Copy resources to build directory")
 
-add_custom_target(copy_resources ALL DEPENDS "${CMAKE_BINARY_DIR}/resources/")
+add_custom_target(copy_resources ALL DEPENDS "${CMAKE_BINARY_DIR}/graph-lib/source/display/resources/Calibri-Regular.ttf")

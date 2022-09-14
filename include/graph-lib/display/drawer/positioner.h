@@ -145,6 +145,15 @@ namespace output
         SimpleCompute();
 
         //------------------------------------------------------------------------------
+        /// @brief Compute coordinates of a graph in a circle shape.
+        ///
+        /// @return Container with coordinates.
+        ///
+        //------------------------------------------------------------------------------
+        coordinate_container
+        CircleCompute();
+
+        //------------------------------------------------------------------------------
         /// @brief Compute coordinates of a graph using spring system method.
         ///
         /// @return Container with coordinates.

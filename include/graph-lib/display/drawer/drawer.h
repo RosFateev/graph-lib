@@ -166,12 +166,14 @@ namespace output
         ///
         /// @param[in] id Vertex id.
         ///
+        /// @param[in] color Vertex color.
+        ///
         //------------------------------------------------------------------------------
-        // prepare individual components to be displayed
         void
         DrawVertex(float x,
                    float y,
-                   const std::string& id);
+                   const std::string& id,
+                   sf::Color color);
 
         //------------------------------------------------------------------------------
         ///
@@ -189,6 +191,8 @@ namespace output
         ///
         /// @param[in] weight Edge weight.
         ///
+        /// @param[in] color Edge color.
+        ///
         //------------------------------------------------------------------------------
         void
         DrawEdge(float x1,
@@ -196,7 +200,27 @@ namespace output
                  float x2,
                  float y2,
                  component::traits::edge_direction direction,
-                 int weight);
+                 int weight,
+                 sf::Color color);
+
+        //------------------------------------------------------------------------------
+        ///
+        /// @brief Draws text.
+        ///
+        /// @param[in] x Text x-coordinate.
+        ///
+        /// @param[in] y Text y-coordinate.
+        ///
+        /// @param[in] data Text to draw.
+        ///
+        /// @param[in] color Text color.
+        ///
+        //------------------------------------------------------------------------------
+        void
+        DrawText(float x,
+                 float y,
+                 const std::string& data,
+                 sf::Color color);
 
 
     private:
@@ -208,7 +232,7 @@ namespace output
         sf::Font font_;
 
         /// @brief Vertex size.
-        float vertexSize_;
+        float vertexRadius_;
 
         /// @brief Edge thickness.
 

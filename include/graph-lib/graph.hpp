@@ -185,12 +185,18 @@ namespace graph
         ///
         /// @param[in] weight Edge weight.
         ///
+        /// @param[in] capacity Edge flow capacity.
+        ///
+        /// @param[in] flow Edge current flow.
+        ///
         //------------------------------------------------------------------------------
         void
         AddEdge(id_type id1,
                 id_type id2,
                 component::traits::edge_direction direction = component::traits::edge_direction::none,
-                int weight = 0);
+                int weight = 0,
+                int capacity = 0,
+                int flow = 0);
 
         //------------------------------------------------------------------------------
         /// @brief Adds edge connecting two given vertices to a graph.
@@ -203,12 +209,32 @@ namespace graph
         ///
         /// @param[in] weight Edge weight.
         ///
+        /// @param[in] capacity Edge flow capacity.
+        ///
+        /// @param[in] flow Edge current flow.
+        ///
         //------------------------------------------------------------------------------
         void
         AddEdge(const vertex_type& vertex1,
                 const vertex_type& vertex2,
                 component::traits::edge_direction direction = component::traits::edge_direction::none,
-                int weight = 0);
+                int weight = 0,
+                int capacity = 0,
+                int flow = 0);
+
+        //------------------------------------------------------------------------------
+        /// @brief Finds edge in a graph using given vertex ids and returns it.
+        ///
+        /// @param[in] id1 First vertex id.
+        ///
+        /// @param[in] id2 Second vertex id.
+        ///
+        /// @return Desired edge.
+        ///
+        //------------------------------------------------------------------------------
+        edge_type&
+        GetEdge(id_type id1,
+                id_type id2);
 
         //------------------------------------------------------------------------------
         /// @brief Finds edge in a graph using given vertex ids and returns it.
@@ -229,6 +255,20 @@ namespace graph
                 id_type id2,
                 component::traits::edge_direction direction = component::traits::edge_direction::none,
                 int weight = 0) const;
+
+        //------------------------------------------------------------------------------
+        /// @brief Finds edge in a graph using input vertices and returns it.
+        ///
+        /// @param[in] vertex1 First vertex.
+        ///
+        /// @param[in] vertex2 Second vertex.
+        ///
+        /// @return Desired edge.
+        ///
+        //------------------------------------------------------------------------------
+        edge_type&
+        GetEdge(const vertex_type& vertex1,
+                const vertex_type& vertex2);
 
         //------------------------------------------------------------------------------
         /// @brief Finds edge in a graph using input vertices and returns it.
@@ -296,6 +336,17 @@ namespace graph
         //------------------------------------------------------------------------------
         const edge_container&
         GetNeighbours(id_type id) const;
+
+         //------------------------------------------------------------------------------
+        /// @brief Get neighbours of the vertex.
+        ///
+        /// @param[in] vertex Input vertex.
+        ///
+        /// @return Edges to neighbours.
+        ///
+        //------------------------------------------------------------------------------        
+        edge_container&
+        GetNeighbours(const vertex_type& vertex);
 
         //------------------------------------------------------------------------------
         /// @brief Get neighbours of the vertex.
@@ -540,12 +591,16 @@ namespace graph
     Graph<id_type, implementation_type>::AddEdge(id_type id1,
                                                  id_type id2,
                                                  component::traits::edge_direction direction,
-                                                 int weight)
+                                                 int weight,
+                                                 int capacity,
+                                                 int flow)
     {
         AddEdge(GetVertex(id1),
                 GetVertex(id2),
                 direction,
-                weight);
+                weight,
+                capacity,
+                flow);
     }
 
     //------------------------------------------------------------------------------
@@ -560,9 +615,26 @@ namespace graph
             const typename Graph<id_type, implementation_type>::vertex_type& vertex1,
             const typename Graph<id_type, implementation_type>::vertex_type& vertex2,
             component::traits::edge_direction direction,
-            int weight)
+            int weight,
+            int capacity,
+            int flow)
     {
-        implementation_.AddEdge(vertex1, vertex2, direction, weight);
+        implementation_.AddEdge(vertex1, vertex2, direction, weight, capacity, flow);
+    }
+
+    //------------------------------------------------------------------------------
+    //
+    //  If edge exist in implementation - construct and return Edge object
+    //
+    //------------------------------------------------------------------------------
+    template<class id_type,
+             typename implementation_type>
+    typename Graph<id_type, implementation_type>::edge_type&
+    Graph<id_type, implementation_type>::GetEdge(id_type id1,
+                                                 id_type id2)
+    {
+        return GetEdge(typename Graph<id_type, implementation_type>::vertex_type(id1),
+                       typename Graph<id_type, implementation_type>::vertex_type(id2));
     }
 
     //------------------------------------------------------------------------------
@@ -581,6 +653,21 @@ namespace graph
         return GetEdge(typename Graph<id_type, implementation_type>::vertex_type(id1),
                        typename Graph<id_type, implementation_type>::vertex_type(id2),
                        direction, weight);
+    }
+
+    //------------------------------------------------------------------------------
+    //
+    //  If edge exist in implementation - construct and return Edge object
+    //
+    //------------------------------------------------------------------------------
+    template<class id_type,
+             typename implementation_type>
+    typename Graph<id_type, implementation_type>::edge_type&
+    Graph<id_type, implementation_type>::GetEdge(
+            const typename Graph<id_type, implementation_type>::vertex_type& vertex1,
+            const typename Graph<id_type, implementation_type>::vertex_type& vertex2)
+    {
+        return implementation_.GetEdge(vertex1, vertex2);
     }
 
     //------------------------------------------------------------------------------
@@ -646,6 +733,20 @@ namespace graph
     Graph<id_type, implementation_type>::GetNeighbours(id_type id) const
     {
         return GetNeighbours(typename Graph<id_type, implementation_type>::vertex_type(id));
+    }
+
+    //------------------------------------------------------------------------------
+    //
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------
+    template<class id_type,
+             typename implementation_type>
+    typename Graph<id_type, implementation_type>::edge_container&
+    Graph<id_type, implementation_type>::GetNeighbours(
+            const typename Graph<id_type, implementation_type>::vertex_type& vertex)
+    {
+        return implementation_.GetNeighbours(vertex);
     }
 
     //------------------------------------------------------------------------------

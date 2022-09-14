@@ -131,8 +131,8 @@ namespace component
 	{
 		return ( (lhs.GetVertex(0).Id() == rhs.GetVertex(0).Id()) &&
 				 (lhs.GetVertex(1).Id() == rhs.GetVertex(1).Id()) &&
-				 (lhs.Direction() == rhs.Direction()) &&
-				 (lhs.Weight() == rhs.Weight()) );
+				 (lhs.GetDirection() == rhs.GetDirection()) &&
+				 (lhs.GetWeight() == rhs.GetWeight()) );
 	}
 
 	//------------------------------------------------------------------------------
@@ -147,8 +147,8 @@ namespace component
 	{
 		return ( (lhs.GetVertex(0).Id() != rhs.GetVertex(0).Id()) ||
 				 (lhs.GetVertex(1).Id() != rhs.GetVertex(1).Id()) ||
-				 (lhs.Direction() != rhs.Direction()) ||
-				 (lhs.Weight() != rhs.Weight()) );
+				 (lhs.GetDirection() != rhs.GetDirection()) ||
+				 (lhs.GetWeight() != rhs.GetWeight()) );
 	}
 
 	//------------------------------------------------------------------------------
@@ -161,7 +161,7 @@ namespace component
 	operator<(const Edge<id_type>& lhs,
 			  const Edge<id_type>& rhs)
 	{
-		return lhs.Weight() < rhs.Weight();
+		return lhs.GetWeight() < rhs.GetWeight();
 	}
 
 	//------------------------------------------------------------------------------
@@ -174,7 +174,7 @@ namespace component
 	operator<=(const Edge<id_type>& lhs,
 			   const Edge<id_type>& rhs)
 	{
-		return lhs.Weight() <= rhs.Weight();
+		return lhs.GetWeight() <= rhs.GetWeight();
 	}
 
 }  // namespace component

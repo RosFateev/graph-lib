@@ -20,6 +20,8 @@
 // System
 // e.g.: #include <iostream>        // stdout
 #include <vector>
+#include <cmath>            // pow, sqrt
+#include <iostream>         // debug output
 
 // Project
 // e.g.: #include "IncludeFile.h"   // MyType_t
@@ -126,7 +128,8 @@ namespace output
     Positioner::ComputeCoordinates()
     {
         // select how coordinates should be computed
-        return SimpleCompute();
+        //return SimpleCompute();
+        return CircleCompute();
         //SpringSystemCompute();
         //BarycentricCompute();
     }
@@ -186,6 +189,57 @@ namespace output
             {
                 result.emplace_back(x_0 + xStep * i, y_0 + yStep * j);
             }
+        }
+
+        return result;
+    }
+
+    //------------------------------------------------------------------------------
+    //
+    //  <Design related information>
+    //
+    //------------------------------------------------------------------------------
+    typename Positioner::coordinate_container
+    Positioner::CircleCompute()
+    {
+        typename Positioner::coordinate_container result;
+
+        // generate x-coordinates wrt edge size
+        // for the sake of pleasant visual output increase x coord count by 2 - 
+        int xCoordCount = (vertexCount_ % 2 == 0 ? (vertexCount_ / 2) + 2 : (vertexCount_ / 2) + 3);
+        float radius = ( width_ > height_ ? (height_ / 3) : (width_ / 3));
+        float xStep = 2*radius / (xCoordCount - 1);
+        float x_center = width_ / 2;
+        float y_center = height_ / 2;
+        
+
+        // generate upper circle coordinates
+        float x_current = x_center - radius;
+        float y_current = 0.f;
+        // we leave out most left and most right x coordinates
+        for (int x_index = 1; x_index < xCoordCount - 1; ++x_index)
+        {
+            x_current += xStep;
+            y_current = y_center + std::sqrt(
+                std::pow(radius, 2) - std::pow(x_current - x_center, 2) );
+
+            //DEBUG
+            std::cout << "Computed upper coordinate: ( " << x_current << ", " << y_current << ")\n";
+            //DEBUG
+
+            result.emplace_back(x_current, y_current);
+        }
+
+        for (int index = result.size() - 1; index > -1; --index)
+        {
+            y_current = y_center - std::sqrt(
+                std::pow(radius, 2) - std::pow(result[index].first - x_center, 2) );
+
+            //DEBUG
+            std::cout << "Computed upper coordinate: ( " << result[index].first << ", " << y_current << ")\n";
+            //DEBUG
+
+            result.emplace_back(result[index].first, y_current);
         }
 
         return result;
