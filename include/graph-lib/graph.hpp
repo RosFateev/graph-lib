@@ -25,7 +25,6 @@
 //------------------------------------------------------------------------------
 // System
 // e.g.: #include <iostream>        // stdout
-#include <initializer_list>
 #include <vector>
 #include <tuple>
 #include <algorithm>            // std::for_each
@@ -84,8 +83,14 @@ namespace graph
         using edge_container        = typename implementation_type::edge_container;
         // init list related
         using vertex_init_type      = id_type;
-        using edge_init_type        = std::tuple<id_type, int, int>;
-        using init_list_type        = std::tuple<vertex_init_type, std::vector<edge_init_type>>;
+        using edge_init_type        = std::tuple<id_type,
+                                                 id_type,
+                                                 component::traits::edge_direction,
+                                                 int,
+                                                 int,
+                                                 int>;
+        using vertex_init_container = std::vector<vertex_init_type>;
+        using edge_init_container   = std::vector<edge_init_type>;
         // allows iterator access
         using iterator              = typename implementation_type::iterator;
         using const_iterator        = typename implementation_type::const_iterator;
@@ -102,22 +107,13 @@ namespace graph
         //------------------------------------------------------------------------------
         /// @brief Initializer list constructor.
         ///
-        /// Creates a graph instance from initializer list of type: 
-        /// {
-        ///     { vertex_id, { 
-        ///           { neighbour1_id, direction, weight},
-        ///           ...
-        ///           { neighbourM_id, direction, weight} } 
-        ///     },
-        ///     { vertex2_id, {...} },
-        ///     ...
-        ///     { vertexR_id, {...} }
-        /// }
+        /// @param[in] vertexList Vertex initializer list.
         ///
-        /// @param[in] initList Initializer list.
+        /// @param[in] edgeList Edge initializer list.
         ///
         //------------------------------------------------------------------------------
-        Graph(std::initializer_list<init_list_type>&& initList);
+        Graph(vertex_init_container& vertexList,
+              edge_init_container& edgeList);
 
         //------------------------------------------------------------------------------
         /// @brief Adds vertex with specefic id to a graph.
@@ -487,7 +483,7 @@ namespace graph
     Graph<id_type, implementation_type>::Graph()
     {   }
 
-    /*
+
     //------------------------------------------------------------------------------
     //
     //  Go through initializer list filling vertexMap_ structure.
@@ -496,21 +492,11 @@ namespace graph
     template<class id_type,
              typename implementation_type>
     Graph<id_type, implementation_type>::Graph(
-        std::initializer_list<typename Graph<id_type, implementation_type>::init_list_type>&& initList) : 
-                implementation_()
-    {
-        int index = 0;
-        std::for_each(initList.begin(), initList.end(),
-            [&vertexMap_, &index](const auto& initVertEdgeTuple)
-            {
-                vertexMap_.[
-                    typename Graph<id_type, implementation_type>::vertex_type(
-                        std::get<0>(initVertEdgeTuple) )] = index++;
+            typename Graph<id_type, implementation_type>::vertex_init_container& vertexList,
+            typename Graph<id_type, implementation_type>::edge_init_container& edgeList) : 
+                            implementation_(vertexList, edgeList)
+    {    }
 
-                implementation_.AddEdge()
-            });
-    }
-    */
 
     //------------------------------------------------------------------------------
     //

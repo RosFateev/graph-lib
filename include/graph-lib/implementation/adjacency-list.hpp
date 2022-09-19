@@ -25,7 +25,7 @@
 //------------------------------------------------------------------------------
 // System
 // e.g.: #include <iostream>        // stdout
-#include <initializer_list>
+#include <vector>
 #include <list>
 #include <map>
 #include <algorithm>                // std::for_each, std::find
@@ -83,8 +83,15 @@ namespace implementation
         using map_type              = std::map<vertex_type,
                                                edge_container,
                                                component::support::vertex_less<id_type>>;
-        //using vertex_init_container = std::vector<int>;
-        //using edge_init_container   = std::vector<edge_ptr>;
+        using vertex_init_type      = id_type;
+        using edge_init_type        = std::tuple<id_type,
+                                                 id_type,
+                                                 component::traits::edge_direction,
+                                                 int,
+                                                 int,
+                                                 int>;
+        using vertex_init_container = std::vector<vertex_init_type>;
+        using edge_init_container   = std::vector<edge_init_type>;
 
     public:
 
@@ -98,18 +105,16 @@ namespace implementation
         //------------------------------------------------------------------------------
         AdjacencyList();
         
-        /*
         //------------------------------------------------------------------------------
-        /// @brief Value constructor
+        /// @brief Initializer list constructor.
         ///
-        /// @param[in]
+        /// @param[in] vertexList Vertex initializer list.
         ///
-        /// @param[in]
+        /// @param[in] edgeList Edge initializer list.
         ///
         //------------------------------------------------------------------------------
-        AdjacencyList(const vertex_init_container&, 
-                      const edge_init_container&);
-        */
+        AdjacencyList(vertex_init_container& vertexList,
+                      edge_init_container& edgeList);
 
         //------------------------------------------------------------------------------
         /// @brief Add vertex to adjacency list.
@@ -340,36 +345,11 @@ namespace implementation
         GetStructureIterator(const vertex_type& vertex) const;
 
 
-    public:
-
-        /*
-        /// @brief invalid vertex constant.
-        static const vertex_type invalidVertex_;
-
-        /// @brief invalid edge constant.
-        static const edge_type invalidEdge_;
-        */
-
     private:
 
         /// @brief Adjacency list container.
         map_type list_;
     };
-
-    /*
-    // initialize invalid vertex
-    template<class id_type>
-    const typename AdjacencyList<id_type>::vertex_type
-    AdjacencyList<id_type>::invalidVertex_ = typename AdjacencyList<id_type>::vertex_type(
-        component::traits::vertex_traits<id_type>::invalid_);
-
-    // initialize invalid edge
-    template<class id_type>
-    const typename AdjacencyList<id_type>::edge_type
-    AdjacencyList<id_type>::invalidEdge_ = typename AdjacencyList<id_type>::edge_type(
-        AdjacencyList<id_type>::invalidVertex_,
-        AdjacencyList<id_type>::invalidVertex_);
-    */
 
 } // namespace implementation
 
@@ -401,7 +381,7 @@ namespace implementation
     AdjacencyList<id_type>::AdjacencyList() : list_()
     {   }
 
-    /*
+
     //------------------------------------------------------------------------------
     //
     //  <Design related information>
@@ -409,22 +389,28 @@ namespace implementation
     //------------------------------------------------------------------------------
     template<class id_type>
     AdjacencyList<id_type>::AdjacencyList(
-        const typename AdjacencyList<id_type>::vertex_init_container& vertices, 
-        const typename AdjacencyList<id_type>::edge_init_container& edges) : is_valid_(true)
+            typename AdjacencyList<id_type>::vertex_init_container& vertexList,
+            typename AdjacencyList<id_type>::edge_init_container& edgeList)
     {
-        // push vertices
-        for (auto vertex_iter = vertices.begin(); vertex_iter != vertices.end(); ++vertex_iter)
-        {
-            list_[(*vertex_iter)->Id()] = typename AdjacencyList<id_type>::edge_container();
-        }
+        // insert vertices
+        std::for_each(vertexList.begin(), vertexList.end(),
+            [this](auto&& id)
+            {
+                AddVertex(typename AdjacencyList<id_type>::vertex_type(id));
+            });
 
-        // push edges
-        for (auto edge_iter = edges.begin(); edge_iter != edges.end(); ++edge_iter)
-        {
-            list_.at((*edge_iter)->GetVertex(0).Id()).push_back(*edge_iter);
-        }
+        // insert edge
+        std::for_each(edgeList.begin(), edgeList.end(),
+            [this](auto&& edge)
+            {
+                AddEdge(GetVertex(std::get<0>(edge)),
+                        GetVertex(std::get<1>(edge)),
+                        std::get<2>(edge),
+                        std::get<3>(edge),
+                        std::get<4>(edge),
+                        std::get<5>(edge));
+            });
     }
-    */
 
 
     //------------------------------------------------------------------------------
