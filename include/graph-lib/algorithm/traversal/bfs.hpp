@@ -2,7 +2,16 @@
 ///
 /// @file bfs.hpp
 ///
-/// @brief Breadth First Search algorithm
+/// @brief Breadth First Search algorithm implementation.
+///
+/// Breadth First Search is one of the most basic and core graph traversal
+/// algorithms encapsulated inside an object. Algorithm class is parametrized by
+/// graph's vertex id type. Single algorithm object works with single graph object.
+/// Contains queue implementation and flow variation, the latter being used in
+/// Edmonds-Karp flow algorithm to produce traversal tree depending on flow.
+/// Both BFS produce a parent structure, which is a dictionary containing
+/// child-parent pairs, where child - graph's vertex, parent - it's predecessor
+/// in a traversal order.
 ///
 /// The documentation is available on the following website:
 /// <website>

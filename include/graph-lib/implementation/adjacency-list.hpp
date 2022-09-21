@@ -2,9 +2,11 @@
 ///
 /// @file adjacency-list.h
 ///
-/// @brief <description>
+/// @brief Graph functionality implementation.
 ///
-/// <Detailed description>
+/// Adjacency list is a dictionary data structure containing pairs of the
+/// following form: <vertex, edge_container>, where vertex - one of the graph's
+/// vertices and edge container - its outgoing edges.
 ///
 /// The documentation is available on the following website:
 /// <website>

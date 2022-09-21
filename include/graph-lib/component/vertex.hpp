@@ -4,6 +4,12 @@
 ///
 /// @brief Graph vertex implementation.
 ///
+/// Vertex is one of the elementary objects in graph theory. Vertex template
+/// class is parametrized by the type of its id to allow more meaningful output
+/// compared to standard integer identification.
+/// Vertex also contains x and y coordinates, which allow displaying on the
+/// screen using Outputter component.
+///
 /// The documentation is available on the following website:
 /// <website>
 ///

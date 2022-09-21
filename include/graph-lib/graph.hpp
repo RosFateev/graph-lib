@@ -4,7 +4,14 @@
 ///
 /// @brief Graph implementation.
 ///
-/// <Detailed description>
+/// Defines one of the core library objects - graph. Graph is a template class
+/// wrapper, which is parametrized by Vertex's id type and underlying
+/// implementation, which actually implements its functionality - by default
+/// uses AdjacencyList.
+/// Graph supports Vertex and Edge manipulations: adding, getting, removing and
+/// in case of Edge also modifying some data fields.
+/// Quick access to specific Vertex neighbours allows easy algorithms
+/// implementation.
 ///
 /// The documentation is available on the following website:
 /// <website>

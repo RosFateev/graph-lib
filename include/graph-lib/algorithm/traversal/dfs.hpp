@@ -2,7 +2,14 @@
 ///
 /// @file dfs.hpp
 ///
-/// @brief Depth First Search algorithm
+/// @brief Depth First Search algorithm implementation.
+///
+/// Depth First Search is one of the most basic and core graph traversal
+/// algorithms encapsulated inside an object. Algorithm class is parametrized by
+/// graph's vertex id type. Single algorithm object works with single graph object.
+/// Contains both recursive and stack implementations. Produces a parent structure,
+/// which is a dictionary containing child-parent pairs, where child - graph's
+/// vertex, parent - it's predecessor in a traversal order.
 ///
 /// The documentation is available on the following website:
 /// <website>

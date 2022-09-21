@@ -2,9 +2,20 @@
 ///
 /// @file edge.hpp
 ///
-/// @brief <description>
+/// @brief Graph edge implementation.
 ///
-/// <Detailed description>
+/// Edge is one of the elementary objects in graph theory. Edge template class
+/// is parametrized by id type of its Vertex endpoints.
+/// Edge is a sixtuple containing:
+///		- first - immutable reference to start vertex of the connection.
+///		- second - immutable reference to end vertex of the connection.
+/// 	- direction - immutable parameter describing type of the connection:
+/// 	directed or undirected (by default)
+///		- weight - mutable parameter specifying weight of the connection.
+///		- capacity - mutable parameter specifying maximum possible flow the
+/// 	connection can accomodate (by default is 0)
+///		- flow - mutable parameter specifying current flow being sent through
+/// 	the connection (by default is 0)
 ///
 /// The documentation is available on the following website:
 /// <website>
