@@ -1,0 +1,23 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}include}\PYG{+w}{ }\PYG{c+cpf}{\PYGZlt{}iostream\PYGZgt{}}
+\PYG{c+cp}{\PYGZsh{}include}\PYG{+w}{ }\PYG{c+cpf}{\PYGZdq{}graph\PYGZhy{}lib/graph.hpp\PYGZdq{}}
+\PYG{c+cp}{\PYGZsh{}include}\PYG{+w}{ }\PYG{c+cpf}{\PYGZdq{}graph\PYGZhy{}lib/algorithm/flow/edmonds.hpp\PYGZdq{}}
+
+
+\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n+nf}{main}\PYG{p}{()}
+\PYG{p}{\PYGZob{}}
+\PYG{+w}{    }\PYG{n}{graph}\PYG{o}{::}\PYG{n}{Graph}\PYG{o}{\PYGZlt{}}\PYG{k+kt}{int}\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{n}{testGraph}\PYG{p}{(\PYGZob{}}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+m+mi}{2}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{l+m+mi}{4}\PYG{p}{\PYGZcb{},}
+\PYG{+w}{                                }\PYG{p}{\PYGZob{}\PYGZob{}}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+m+mi}{2}\PYG{p}{,}\PYG{n}{edge\PYGZus{}direction}\PYG{o}{::}\PYG{n}{one\PYGZus{}two}\PYG{p}{,}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{l+m+mi}{5}\PYG{p}{\PYGZcb{},}
+\PYG{+w}{                                 }\PYG{p}{\PYGZob{}}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+m+mi}{4}\PYG{p}{,}\PYG{n}{edge\PYGZus{}direction}\PYG{o}{::}\PYG{n}{one\PYGZus{}two}\PYG{p}{,}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{\PYGZcb{},}
+\PYG{+w}{                                 }\PYG{p}{\PYGZob{}}\PYG{l+m+mi}{2}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{n}{edge\PYGZus{}direction}\PYG{o}{::}\PYG{n}{one\PYGZus{}two}\PYG{p}{,}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{l+m+mi}{7}\PYG{p}{\PYGZcb{},}
+\PYG{+w}{                                 }\PYG{p}{\PYGZob{}}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{n}{edge\PYGZus{}direction}\PYG{o}{::}\PYG{n}{one\PYGZus{}two}\PYG{p}{,}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{l+m+mi}{2}\PYG{p}{\PYGZcb{},}
+\PYG{+w}{                                 }\PYG{p}{\PYGZob{}}\PYG{l+m+mi}{4}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{n}{edge\PYGZus{}direction}\PYG{o}{::}\PYG{n}{one\PYGZus{}two}\PYG{p}{,}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{l+m+mi}{4}\PYG{p}{\PYGZcb{}\PYGZcb{});}
+
+\PYG{+w}{    }\PYG{n}{algorithm}\PYG{o}{::}\PYG{n}{edmonds\PYGZus{}karp}\PYG{o}{\PYGZlt{}}\PYG{k+kt}{int}\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{n}{algObj}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{testGraph}\PYG{p}{);}
+\PYG{+w}{    }\PYG{n}{algObj}\PYG{p}{.}\PYG{n}{run}\PYG{p}{(}\PYG{n}{testGraph}\PYG{p}{.}\PYG{n}{GetVertex}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{),}\PYG{+w}{ }\PYG{n}{testGraph}\PYG{p}{.}\PYG{n}{GetVertex}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{));}
+
+\PYG{+w}{    }\PYG{n}{std}\PYG{o}{::}\PYG{n}{cout}\PYG{+w}{ }\PYG{o}{\PYGZlt{}\PYGZlt{}}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}Maximum flow is \PYGZdq{}}\PYG{+w}{ }\PYG{o}{\PYGZlt{}\PYGZlt{}}\PYG{+w}{ }\PYG{n}{algObj}\PYG{p}{.}\PYG{n}{get}\PYG{p}{()}\PYG{+w}{ }\PYG{o}{\PYGZlt{}\PYGZlt{}}\PYG{+w}{ }\PYG{n}{std}\PYG{o}{::}\PYG{n}{endl}\PYG{p}{;}
+
+\PYG{+w}{    }\PYG{k}{return}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

@@ -1,0 +1,20 @@
+\subsection*{runner}
+
+\subsubsection*{File format}
+
+\begin{itemize}
+    \item Each vertex/edge is on a separate line.
+    \item Vertices are separated from edges by a line containing $---$.
+    \item Vertices are put before edges.
+    \item Edge has the following strucutre $<$vertex1 vertex2 direction weight capacity flow$>$.
+    \begin{itemize}
+        \item vertex1 and vertex2 data fields are required, the others are optional. Direction can be either $---$ or $-->$. If you want to specify let's say edge capacity - you must also specify all fields before it (direction and weight). Default values for each data field is:
+        \begin{itemize}
+            \item direction: $---$
+            \item weight: 0
+            \item capacity: 0
+            \item flow: 0
+        \end{itemize}
+        \item Edge data fields are delimeted by a single space character.
+    \end{itemize}
+\end{itemize}

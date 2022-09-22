@@ -1,0 +1,9 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} launch runner}
+./runner
+\PYG{c+c1}{\PYGZsh{} provide some commands}
+dfs graph1.txt v1
+dinic graphFlow.txt \PYG{l+m}{1} \PYG{l+m}{15}
+\PYG{c+c1}{\PYGZsh{} close program}
+quit
+\end{Verbatim}

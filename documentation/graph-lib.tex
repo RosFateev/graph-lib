@@ -1,0 +1,61 @@
+\documentclass{article}
+
+\usepackage{import}         % safer way to include latex file into another file
+\usepackage{hyperref}       % clickable links
+\usepackage{minted}         % display code
+
+\title{Graph-lib Documentation}
+\author{Rostislav Fateev}
+\date{}
+
+
+
+\begin{document}
+
+\maketitle
+
+% abstract section
+\section*{Abstract}
+
+\import{resources/}{abstract.tex}
+
+% task section
+\section*{Task}
+
+\import{resources/}{task.tex}
+
+% algorith
+\section*{Algorithms}
+
+\import{resources/}{algorithms.tex}
+
+\section*{Program}
+
+\import{resources/}{program.tex}
+
+
+
+% another style
+
+\section*{Input data}
+
+\import{resources/}{input.tex}
+
+%
+%\section*{Output data}
+
+%\import{resources/}{output.tex}
+
+%
+\section*{Improvements}
+
+\import{resources/}{improvements.tex}
+
+%
+\section*{Last words}
+
+\import{resources/}{last.tex}
+
+
+
+\end{document}

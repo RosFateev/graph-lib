@@ -1,0 +1,17 @@
+one
+two
+three
+four
+five
+six
+seven
+---
+one two
+one three
+two three
+three four
+four five
+four six
+five six
+five seven
+six seven

@@ -1,0 +1,16 @@
+The following algorithms were implemented:\\
+
+\begin{itemize}
+    \item Depth First Search - core graph traversal algorithm
+    \begin{itemize}
+        \item Recursive DFS - simpliest implementation, which calls itself on undiscovered children.
+        \item Stack-based DFS - classic approach, uses stack to store potential undiscovered candidates.
+    \end{itemize}
+    \item Breadth First Search - core graph traversal algorithm
+    \begin{itemize}
+        \item Queue-based BFS - classic approach, uses queue to store potential udiscovered candidates.
+        \item Flow-related BFS - implementation used in Edmonds-Karp algorithm, which takes into account not only "is vertex visited" condition, but also "can edge pass through more flow" condition.
+    \end{itemize}
+    \item Edmonds-Karp - one of the approaches to solve the maximum flow problem. Works by repeatedly finding the augmenting path in a graph and sending maximum allowed by edge capacity flow along it until no more path can be found.
+    \item Dinic - more complicated, but also efficient approach. Works by repeatedly constructing a residual network - network consisting of edges, that can still pass through flow - and trying to find for each such network all possible augmenting paths to send flow along.
+\end{itemize}

@@ -1,0 +1,58 @@
+\subsection*{graph-lib}
+
+Library consists of multiple modules, logically splitted to provide different functionality. \\
+
+\begin{itemize}
+    \item \textbf{component} - module containing vertex and edge implementations.
+    \begin{itemize}
+        \item \textbf{Vertex} - generic class representing an elementary graph theoretical entity. It is able to use identificators of various types.
+        \item \textbf{Edge} - generic class parametrized by Vertex identification type representing a connection between two Vertex objects. It is a six-tuple containing:
+        \begin{itemize}
+            \item first - reference to the first Vertex of a connection.
+            \item second - reference to the second Vertex of a connection.
+            \item direction - specifies if connection is directed or not (by default undirected)
+            \item weight - specifies connection weight (by default 0)
+            \item capacity - specifies connection flow capacity (by default 0)
+            \item flow - specifies current flow passing through the connection (by default 0)
+        \end{itemize}
+    \end{itemize}
+    \item \textbf{algorithm} - module containing all implemented algorithms. Each algorithm contains similar interface to simplify usage: constructor takes pointer to graph object as input, $run(...)$ method executes algorithm after object was constructed and $get()$ method outputs the result.
+    \begin{itemize}
+        \item \textbf{DFS} - generic class parametrized by Vertex identification type encapsulating DFS algorithm behaviour. Outputs dictionary with $<Vertex, Vertex>$ entries indicating traversal order.
+        \item \textbf{BFS} - generic class parametrized by Vertex identification type encapsulating BFS algorithm behaviour. Outputs dictionary with $<Vertex, Vertex>$ entries indicating traversal order.
+        \item \textbf{Edmonds} - generic class parametrized by Vertex identification type encapsulating Edmonds-Karp algorithm behaviour. Outputs maximum possible flow that can be sent over graph's network.
+        \item \textbf{Dinic} - generic class parametrized by Vertex identification type encapsulating Dinic algorithm behaviour. Outputs maximum possible flow that can be sent over graph's network.
+    \end{itemize}
+    \item \textbf{implementation} - module containing underlying graph functionality implementations.
+    \begin{itemize}
+        \item \textbf{AdjacencyList} - generic class parametrized by Vertex identification type that implements adjacency list data structure. It is a dictionary with $<Vertex, list<Edge>>$ entries indicating all of graph's vertices and their respective list of neighbouring vertices reachable by outgoing edge. Has the same interface as Graph object. 
+    \end{itemize}
+    \item \textbf{display} - module containing functionality to display graph on screen.
+    \begin{itemize}
+        \item \textbf{Outputter} - generic class parametrized by Vertex identification type that for an input graph displays it on the screen using Drawer and Positioner components. 
+        \item \textbf{Drawer} - class that is resonsible for drawing Graph object or algorithm result on the screen using SFML library and coordinates computed by Positioner component.
+        \item \textbf{Positioner} - class that is responsible for computing vertex coordinates used by Drawer component using different techniques.
+    \end{itemize}
+    \item \textbf{Graph} - generic class wrapper parametrized by Vertex identification type and implementation strucure type. It is a wrapper over implementation structure, which encapsulates actual functionality, providing a common interface using Bridge design pattern. Allows vertex and edge manipulation, quick access to vertex neighbours and quick acces to implementation structure iterators to allow bulk operations.
+\end{itemize}
+
+For details see README.md file and documentation generated in doc directory. \\
+
+
+
+\subsection*{runner}
+
+A helper tool, which uses \textbf{graph-lib} and allows to execute algorithms on graphs provided as file input. Consists of the following modules: \\
+
+\begin{itemize}
+    \item \textbf{fetcher} - module reading a graph from the input file and constructing a Graph object.
+    \begin{itemize}
+        \item \textbf{Fetcher} - class which opens a file stream and parses input file constructing Graph object.
+    \end{itemize}
+    \item \textbf{runner} - module executing implemented algorithms on constructed by Fetcher Graph object and outputs the result
+    \begin{itemize}
+        \item \textbf{Runner} - class which launches loop, parses input commands and executes them until "quit" command is received.
+    \end{itemize}
+\end{itemize}
+
+For details see README.md file. \\
